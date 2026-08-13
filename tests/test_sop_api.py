@@ -15,21 +15,31 @@ from __future__ import annotations
 import pytest
 from fastapi.testclient import TestClient
 
+from aiops_db import get_db
 from app.main import create_app
 
 
 @pytest.fixture
 def client() -> TestClient:
-    """A client that reports server errors as responses rather than raising.
+    """A client for testing the HTTP contract, independent of any database.
 
-    These tests assert on the HTTP *contract* — which status code a given body
-    produces. Whether a route then succeeds depends on a reachable database,
-    which a unit test must not require: with the default
-    `raise_server_exceptions=True`, a database that is merely slow or
-    unreachable propagates as an exception and the test fails for a reason
-    that has nothing to do with what it is checking.
+    Two things make it independent, and both are load-bearing:
+
+    `dependency_overrides[get_db]` — FastAPI resolves dependencies *before* it
+    validates query parameters. Without a database the real `get_db` raises,
+    so a request with a deliberately invalid parameter returns 500 (the
+    configuration error) instead of the 422 the contract promises. That made
+    these tests pass on a machine with a database and fail in CI without one.
+
+    `raise_server_exceptions=False` — a slow or unreachable database should
+    surface as a response to assert on, not as an exception that fails a test
+    for a reason unrelated to what it checks.
     """
-    return TestClient(create_app(), raise_server_exceptions=False)
+    app = create_app()
+    # These tests never read or write; the session is only needed so that
+    # dependency resolution succeeds and validation is reached.
+    app.dependency_overrides[get_db] = lambda: None
+    return TestClient(app, raise_server_exceptions=False)
 
 
 def _request_body_schema(client: TestClient, path: str, method: str = "post") -> dict:
