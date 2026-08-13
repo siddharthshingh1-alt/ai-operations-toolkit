@@ -19,3 +19,8 @@
 -e ./services/workflow-engine
 -e ./services/analytics
 -e ./services/document-processing
+
+# The API app, which declares FastAPI and uvicorn. Installing it (rather than
+# relying on the working directory) is what lets pytest and CI import `app`
+# from anywhere in the repo.
+-e ./apps/api

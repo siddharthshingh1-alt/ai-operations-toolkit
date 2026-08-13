@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aiops-api"
+version = "0.1.0"
+description = "FastAPI backend for the AI Operations Toolkit."
+requires-python = ">=3.12"
+dependencies = [
+    # Shared packages.
+    "aiops-config",
+    "aiops-utils",
+    "aiops-ai",
+    "aiops-db",
+    "aiops-adapters",
+    "aiops-workflow",
+    "aiops-analytics",
+    "aiops-docproc",
+
+    # The web framework itself. These belong here rather than floating at the
+    # repo root: the API is the only thing that needs them, and declaring them
+    # is what makes `pip install -r requirements.txt` reproduce a working
+    # backend on a machine that has never run this project.
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+]
+
+[tool.setuptools]
+packages = ["app", "app.routers"]
