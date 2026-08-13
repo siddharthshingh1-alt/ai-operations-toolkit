@@ -1,12 +1,14 @@
 """Google Gemini provider.
 
-Structured output note: Gemini's `response_schema` does not accept the same
-JSON Schema dialect the other two providers use (it rejects
-`additionalProperties` and does not resolve `$ref`/`$defs`). Rather than ship a
-lossy schema translator, this provider asks for `application/json` and states
-the required schema in the system instruction. The base class still validates
-the result against the Pydantic model, so a non-conforming response is a loud
-failure, not a silent one.
+Structured output: Gemini's `response_schema` does not accept the JSON Schema
+dialect Pydantic emits — it rejects `additionalProperties` and does not resolve
+`$ref`/`$defs`. `gemini_schema.to_gemini_schema` converts it, so decoding is
+constrained by the schema itself rather than by a prompt instruction.
+
+That distinction is load-bearing: asking for JSON in the prompt returned
+unclosed objects intermittently, which surfaced as a confusing parse error.
+The base class still validates against the Pydantic model afterwards, so a
+non-conforming response remains a loud failure rather than a silent one.
 """
 
 from __future__ import annotations
@@ -142,12 +144,17 @@ class GeminiProvider(AIProvider):
         model: str | None,
         max_tokens: int | None,
         json_mode: bool = False,
+        response_schema: dict[str, Any] | None = None,
     ) -> tuple[str, Usage, str, int]:
         chosen_model = model or self._default_model
         config = genai_types.GenerateContentConfig(
             system_instruction=system,
             max_output_tokens=max_tokens or self._settings.ai_max_output_tokens,
             response_mime_type="application/json" if json_mode else None,
+            # Constrains decoding, so the response cannot come back as
+            # malformed or unclosed JSON. Asking for JSON in the prompt alone
+            # is a request the model mostly honours; this is a guarantee.
+            response_schema=response_schema,
         )
 
         with Stopwatch() as sw:
