@@ -34,7 +34,7 @@ cut or merged rather than kept for volume. The reasoning is on the record below.
 *TBM = to be measured, and it will be labelled a simulated demo estimate against
 synthetic data, never a claim of real-world deployment.*
 
-Build order and reasoning: [`CLAUDE.md`](CLAUDE.md.md) Section 8.
+Build order and reasoning: [`CLAUDE.md`](CLAUDE.md) Section 8.
 
 ---
 
@@ -193,7 +193,7 @@ demo that fakes its output would prove the opposite of the point.
 
 ## Documentation
 
-- [`CLAUDE.md`](CLAUDE.md.md) — the full specification this is built against
+- [`CLAUDE.md`](CLAUDE.md) — the full specification this is built against
 - [`docs/architecture/`](docs/architecture/README.md) — system design
 - [`docs/decisions/`](docs/decisions/) — architectural decisions with reasoning
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) — conventions and quality gates

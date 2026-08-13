@@ -50,6 +50,13 @@ uploads/
 *.db
 *.sqlite3
 
+# ---------- Tool-generated agent files ----------
+# `next dev` regenerates its own CLAUDE.md / AGENTS.md inside apps/web on every
+# run. They are generic Next.js scaffolding notes and would be confused with
+# the repo-root CLAUDE.md, which is this project's actual specification.
+apps/web/CLAUDE.md
+apps/web/AGENTS.md
+
 # ---------- Editors / OS ----------
 .vscode/
 .idea/
