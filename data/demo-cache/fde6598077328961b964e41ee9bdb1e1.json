@@ -1,0 +1,20 @@
+{
+  "key": "fde6598077328961b964e41ee9bdb1e1",
+  "operation": "complete_json",
+  "recorded_at": "2026-08-13T18:41:54.852789+00:00",
+  "recorded_provider": "gemini",
+  "recorded_model": "gemini-3.6-flash",
+  "duration_ms": 5153,
+  "usage": {
+    "input_tokens": 2808,
+    "output_tokens": 225,
+    "estimated_cost_usd": null
+  },
+  "prompt_preview": "QUESTION:\nWhat are the steps to onboard a new travel agency?\n\n=== SOPs AVAILABLE TO YOU ===\n\nSOP: Travel Agency Partner Onboarding Procedure (version 1)\nTravel Agency Partner Onboarding Procedure\nStandardize the end-to-end onboarding of newly registered travel agencies, ensuring business verification, credit risk evaluation, portal access control, and platform training are completed within five bu",
+  "system_preview": "You answer operational questions using only the standard operating procedures provided to you.\n\nRules, in order of importance:\n\n1. If the SOPs provided do not contain the information needed, set answered to false and say plainly what is missing. Never fill a gap from general knowledge.\n2. When you do answer, use only what the SOPs say. Do not add steps, times, thresholds, or role names that are no",
+  "value": {
+    "answered": true,
+    "answer": "According to the Travel Agency Partner Onboarding Procedure, the steps to onboard a new travel agency are:\n\n1. **Verify Documents:** Retrieve the travel agency application and verify the business registration documents against official government registry databases.\n2. **Credit Risk Evaluation:** Submit the verified business profile to the credit team for financial risk evaluation to establish credit limits and payment terms.\n3. **Execute Agreement:** Issue the Credit Agreement and Terms of Business to the agency contact and receive a signed copy prior to granting portal access.\n4. **Create Credentials:** Create administrative portal login credentials in the booking platform and send the account activation email.\n5. **Platform Walkthrough:** Schedule and execute a live platform walkthrough session with travel agency staff covering booking workflows.\n6. **Account Handover:** Transfer the account record to the assigned Account Manager in the CRM and conduct a formal handover summary.",
+    "reasoning_summary": "The onboarding steps were extracted directly from the sequential procedure outlined in the Travel Agency Partner Onboarding Procedure SOP."
+  }
+}

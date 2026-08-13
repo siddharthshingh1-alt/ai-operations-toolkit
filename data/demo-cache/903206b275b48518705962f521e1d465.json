@@ -1,0 +1,138 @@
+{
+  "key": "903206b275b48518705962f521e1d465",
+  "operation": "complete_json",
+  "recorded_at": "2026-08-13T18:40:41.222678+00:00",
+  "recorded_provider": "gemini",
+  "recorded_model": "gemini-3.6-flash",
+  "duration_ms": 18753,
+  "usage": {
+    "input_tokens": 2208,
+    "output_tokens": 1581,
+    "estimated_cost_usd": null
+  },
+  "prompt_preview": "PROCESS TO DOCUMENT:\nWhen a flight is delayed by more than three hours we need to work out which of our travel agents' bookings are affected, check whether any of those travellers have onward connections, and contact each agent with the rebooking or refund options. At the moment different people do this differently, there is no fixed order, and travellers sometimes hear from the airline before the",
+  "system_preview": "You write standard operating procedures for the operations team of a B2B travel company. Their customers are travel agents who book flights, hotels, and holiday packages on behalf of travellers.\n\nWrite the SOP an experienced operations lead would write:\n\n- Steps are concrete actions someone can follow under pressure. \"Contact the airline's trade desk and request the rebooking options for the affec",
+  "value": {
+    "title": "Standard Operating Procedure: Managing Flight Delays Exceeding Three Hours for B2B Bookings",
+    "purpose": "Define a standardized, prioritized workflow for identifying travel agent bookings affected by flight delays exceeding three hours, evaluating downstream connection risks, and communicating rebooking or refund options to agents within 30 minutes of delay confirmation.",
+    "scope": "Applies to all flight bookings created by travel agent partners on the B2B platform that experience a confirmed flight schedule delay exceeding three hours.",
+    "prerequisites": [
+      "Access to the internal booking management system and flight monitoring feed.",
+      "Access to the Global Distribution System (GDS) and airline trade helpdesk communication channels.",
+      "Access to agent notification templates and communication logs."
+    ],
+    "roles": [
+      "Operations Associate",
+      "Operations Lead",
+      "Account Manager"
+    ],
+    "procedure": [
+      {
+        "number": 1,
+        "instruction": "Filter the internal booking management system by the delayed flight number and date to extract all active Passenger Name Records (PNRs) and their associated travel agent contact details.",
+        "responsible": "Operations Associate",
+        "expected_result": "A complete list of affected PNRs and matching travel agent contact records is generated."
+      },
+      {
+        "number": 2,
+        "instruction": "Review each identified PNR to check for onward connecting flights, hotel bookings, or ground transfers within the same or linked itineraries.",
+        "responsible": "Operations Associate",
+        "expected_result": "All PNRs with downstream connection risks or multi-segment impacts are identified and tagged as high priority."
+      },
+      {
+        "number": 3,
+        "instruction": "Contact the operating airline's trade desk or consult the published trade disruption policy to obtain official rebooking options, fee waivers, or involuntary refund guidelines.",
+        "responsible": "Operations Associate",
+        "expected_result": "Clear rebooking alternatives, available flight availability, and fee waiver rules are confirmed and documented for the incident."
+      },
+      {
+        "number": 4,
+        "instruction": "Send the standard delay notification to each affected travel agent, specifying the delay duration, impact on onward connections, available alternative flights, and refund policies.",
+        "responsible": "Operations Associate",
+        "expected_result": "Written notification email sent to travel agents within 30 minutes of delay confirmation, with delivery timestamp recorded."
+      },
+      {
+        "number": 5,
+        "instruction": "Log the communication timestamp, agent choices, and updated itinerary details in the internal PNR file.",
+        "responsible": "Operations Associate",
+        "expected_result": "Internal system updated with complete audit trail and status of agent instructions."
+      }
+    ],
+    "decision_points": [
+      {
+        "at_step": 2,
+        "question": "Does the affected traveller have an onward connecting flight or downstream booking at risk of being missed?",
+        "if_yes": "Flag the PNR as High Priority, evaluate alternative full-route itineraries, and include connection rebooking options in the agent notice.",
+        "if_no": "Process the PNR under standard delay handling for point-to-point travel options."
+      },
+      {
+        "at_step": 3,
+        "question": "Has the airline issued an explicit trade waiver policy covering involuntary changes and fee waivers for this delay?",
+        "if_yes": "Apply the waiver policy conditions directly when outlining options to the travel agent.",
+        "if_no": "Submit an urgent trade desk authorization request while providing the agent standard fare rule options with a waiver-pending note."
+      }
+    ],
+    "exceptions": [
+      {
+        "situation": "Airline trade desk does not respond within 15 minutes of initial request.",
+        "action": "Dispatch preliminary delay notification to travel agents stating available scheduled alternatives and noting that final carrier waiver approval is pending, then re-send urgent request to trade desk."
+      },
+      {
+        "situation": "The operating airline rebooks the traveller at the airport before the travel agent responds.",
+        "action": "Sync PNR from GDS to pull updated carrier flight segments, update internal system, and notify travel agent of the carrier-executed rebooking details."
+      },
+      {
+        "situation": "No direct or connecting alternative flights are available on the same travel date.",
+        "action": "Provide travel agent options for next-day flights with partner airlines under interline agreements, or present full involuntary refund details."
+      }
+    ],
+    "escalation_rules": [
+      {
+        "trigger": "Airline trade desk fails to provide waiver or rebooking approval within 20 minutes of flight delay alert.",
+        "escalate_to": "Operations Lead",
+        "within": "20 minutes"
+      },
+      {
+        "trigger": "Travel agent partner demands commercial compensation or carrier policy exception outside standard agent guidelines.",
+        "escalate_to": "Account Manager",
+        "within": "15 minutes"
+      }
+    ],
+    "checklist": [
+      "Confirmed flight delay duration exceeds 3 hours on flight tracking feed.",
+      "Extracted full list of affected PNRs and corresponding travel agent contacts.",
+      "Evaluated all itineraries for onward flight connections and land arrangements.",
+      "Retrieved official airline trade waiver policy and alternative flight options.",
+      "Dispatched standardized delay and option email to all travel agents within 30 minutes.",
+      "Logged dispatch time and agent responses in internal booking records."
+    ],
+    "kpis": [
+      {
+        "name": "Travel Agent Notification Time SLA",
+        "target": "100% of affected agents notified within 30 minutes of delay confirmation",
+        "how_measured": "Difference between confirmed delay timestamp in system and notification dispatch timestamp in CRM."
+      },
+      {
+        "name": "Onward Connection Protection Rate",
+        "target": "100% of affected connecting itineraries assessed and offered alternative routes",
+        "how_measured": "Audit of high-priority PNR logs comparing total missed connections to documented rebooking options provided to agents."
+      }
+    ],
+    "risks": [
+      {
+        "description": "Travellers receive direct airline SMS alerts before their travel agent is informed by the B2B team, leading to agent dissatisfaction.",
+        "severity": "high",
+        "mitigation": "Strict adherence to the 30-minute notification workflow with prioritized processing of high-impact delays."
+      },
+      {
+        "description": "Missed identification of onward connecting segments booked across separate PNRs.",
+        "severity": "medium",
+        "mitigation": "Perform agent customer history cross-reference search during Step 2 to locate linked single-passenger bookings."
+      }
+    ],
+    "improvement_suggestions": [
+      "Integrate automated flight delay alerts into the booking system to automatically flag affected PNRs and generate agent contact lists.",
+      "Develop automated email generation for flight delay options that pre-fills alternative flight itineraries directly from GDS availability."
+    ]
+  }
+}

@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aiops-sop"
+version = "0.1.0"
+description = "Project 1 — AI SOP Generator, including the folded-in searchable SOP library (CLAUDE.md Section 9)."
+requires-python = ">=3.12"
+dependencies = [
+    "aiops-config",
+    "aiops-utils",
+    "aiops-ai",
+    "aiops-db",
+    "aiops-docproc",
+    "pydantic>=2.8",
+    "sqlalchemy>=2.0",
+    "pgvector>=0.3",
+    "fastapi>=0.115",
+    "python-multipart>=0.0.9",
+]
+
+[tool.setuptools]
+packages = ["aiops_sop"]

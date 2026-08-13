@@ -14,7 +14,7 @@ export const PROJECTS: ProjectSummary[] = [
     jdRequirement: "Document and standardize scalable operational processes",
     description:
       "Turns messy operational knowledge into standardized, searchable SOPs, with version diffing and citation-backed semantic search.",
-    status: "planned",
+    status: "shipped",
     phase: 1,
   },
   {

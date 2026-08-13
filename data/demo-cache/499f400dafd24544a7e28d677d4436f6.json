@@ -1,0 +1,156 @@
+{
+  "key": "499f400dafd24544a7e28d677d4436f6",
+  "operation": "complete_json",
+  "recorded_at": "2026-08-13T18:41:28.129844+00:00",
+  "recorded_provider": "gemini",
+  "recorded_model": "gemini-3.6-flash",
+  "duration_ms": 13428,
+  "usage": {
+    "input_tokens": 2206,
+    "output_tokens": 1649,
+    "estimated_cost_usd": null
+  },
+  "prompt_preview": "PROCESS TO DOCUMENT:\nNew travel agencies sign up as partners and need to be onboarded: verify their business registration, set their credit limit and payment terms, create their portal logins, run a walkthrough of how to book, and hand them to an account owner. Right now this is tracked in a spreadsheet, steps get skipped, and agents sometimes get portal access before their credit terms are agreed",
+  "system_preview": "You write standard operating procedures for the operations team of a B2B travel company. Their customers are travel agents who book flights, hotels, and holiday packages on behalf of travellers.\n\nWrite the SOP an experienced operations lead would write:\n\n- Steps are concrete actions someone can follow under pressure. \"Contact the airline's trade desk and request the rebooking options for the affec",
+  "value": {
+    "title": "Travel Agency Partner Onboarding Procedure",
+    "purpose": "Standardize the end-to-end onboarding of newly registered travel agencies, ensuring business verification, credit risk evaluation, portal access control, and platform training are completed within five business days without skipping required compliance gates.",
+    "scope": "Applies to all newly registered B2B travel agency accounts handled by the Agent Partnerships department from initial application receipt through account transfer to the Account Manager.",
+    "prerequisites": [
+      "Completed travel agency registration form submitted via partner portal",
+      "Government-issued business registration certificate and tax identification documents",
+      "Assigned Partner Operations Associate and designated Account Manager"
+    ],
+    "roles": [
+      "Partner Operations Associate",
+      "Finance / Credit Risk Officer",
+      "Account Manager",
+      "Operations Lead"
+    ],
+    "procedure": [
+      {
+        "number": 1,
+        "instruction": "Retrieve the travel agency application and verify the validity of the business registration documents against official government registry databases.",
+        "responsible": "Partner Operations Associate",
+        "expected_result": "Business registration status, tax ID, and legal business name are confirmed valid and documented in the onboarding log."
+      },
+      {
+        "number": 2,
+        "instruction": "Submit the verified business profile to the credit team to perform a financial risk evaluation and establish approved credit limits and payment terms.",
+        "responsible": "Partner Operations Associate",
+        "expected_result": "A formal credit limit decision and payment terms (e.g., prepay, 7-day, or 14-day credit) are issued in writing by the Finance team."
+      },
+      {
+        "number": 3,
+        "instruction": "Issue the Credit Agreement and Terms of Business to the agency contact and obtain a signed copy prior to granting portal access.",
+        "responsible": "Partner Operations Associate",
+        "expected_result": "A fully executed, signed credit agreement is received and uploaded to the partner profile."
+      },
+      {
+        "number": 4,
+        "instruction": "Create administrative portal login credentials for the agency in the booking platform and send the account activation email.",
+        "responsible": "Partner Operations Associate",
+        "expected_result": "Portal credentials are generated and the agency administrator receives activation instructions only after credit terms are signed."
+      },
+      {
+        "number": 5,
+        "instruction": "Schedule and execute a live platform walkthrough session with the travel agency staff, covering flight, hotel, and package booking workflows.",
+        "responsible": "Partner Operations Associate",
+        "expected_result": "Walkthrough session completed and confirmed via signed or email-acknowledged training sign-off sheet."
+      },
+      {
+        "number": 6,
+        "instruction": "Transfer the account record to the assigned Account Manager in the CRM and conduct a formal handover summary.",
+        "responsible": "Partner Operations Associate",
+        "expected_result": "Account ownership is updated in the system, and the Account Manager acknowledges receipt of the active account."
+      }
+    ],
+    "decision_points": [
+      {
+        "at_step": 1,
+        "question": "Are the agency's business registration documents valid and active in official government databases?",
+        "if_yes": "Proceed to Step 2 for financial evaluation and credit limit assignment.",
+        "if_no": "Reject application or request updated registration documents from the agency before proceeding."
+      },
+      {
+        "at_step": 3,
+        "question": "Has the signed credit agreement and terms of business been returned by the agency?",
+        "if_yes": "Proceed to Step 4 to create portal login credentials.",
+        "if_no": "Hold step 4; do not create portal credentials until the signed agreement is received."
+      }
+    ],
+    "exceptions": [
+      {
+        "situation": "Agency requests urgent portal login access before returning signed credit terms.",
+        "action": "Refuse credential generation until the agreement is signed. Offer a temporary prepay/read-only demo environment if available, but do not issue active booking credentials."
+      },
+      {
+        "situation": "Finance / Credit team rejects credit limit application due to insufficient credit history.",
+        "action": "Set account payment terms to 'Pre-payment / Deposit basis' only, send amended agreement to agency, and update partner profile."
+      },
+      {
+        "situation": "Agency fails to attend scheduled booking platform walkthrough session.",
+        "action": "Reschedule walkthrough within 24 hours and send self-service video onboarding materials; do not mark step 5 complete until live or confirmed self-service training is verified."
+      }
+    ],
+    "escalation_rules": [
+      {
+        "trigger": "Business verification or document authenticity cannot be verified within 24 hours.",
+        "escalate_to": "Operations Lead",
+        "within": "2 business hours of issue discovery"
+      },
+      {
+        "trigger": "Agency refuses standard credit terms or demands custom contract terms.",
+        "escalate_to": "Head of Partnerships",
+        "within": "4 business hours"
+      },
+      {
+        "trigger": "Onboarding total elapsed time reaches 4 business days without completion.",
+        "escalate_to": "Operations Lead",
+        "within": "2 business hours"
+      }
+    ],
+    "checklist": [
+      "Business registration and tax status verified against government registry",
+      "Credit evaluation completed and limit/terms assigned by Finance",
+      "Signed Credit Agreement and Terms of Business uploaded to account profile",
+      "Portal admin login credentials created (only after contract execution)",
+      "Platform booking walkthrough conducted and training sign-off recorded",
+      "Account transferred and accepted by assigned Account Manager"
+    ],
+    "kpis": [
+      {
+        "name": "End-to-End Onboarding Time",
+        "target": "< 5 business days",
+        "how_measured": "Time elapsed from initial application submission to final account transfer recorded in onboarding tracking system"
+      },
+      {
+        "name": "Onboarding Gate Compliance Rate",
+        "target": "100%",
+        "how_measured": "Percentage of onboarded accounts with verified business docs and signed credit terms prior to credential creation"
+      },
+      {
+        "name": "Early Access Violation Rate",
+        "target": "0%",
+        "how_measured": "Count of portal logins created before signed credit terms are uploaded, audited weekly"
+      }
+    ],
+    "risks": [
+      {
+        "description": "Issuing portal login credentials prior to credit term agreement exposes business to unbacked financial liabilities.",
+        "severity": "high",
+        "mitigation": "Systematically enforce credential creation gated by signed agreement verification."
+      },
+      {
+        "description": "Manual spreadsheet tracking allows steps to be skipped or miscommunicated across teams.",
+        "severity": "medium",
+        "mitigation": "Require mandatory step sign-offs in sequential workflow log before advancing to the next step."
+      }
+    ],
+    "improvement_suggestions": [
+      "Replace manual spreadsheet tracking with an automated workflow management system featuring mandatory gate checks.",
+      "Implement electronic signature integration to automatically trigger portal provisioning upon contract signature.",
+      "Automate business registration verification via direct API integrations with national corporate registries."
+    ]
+  }
+}

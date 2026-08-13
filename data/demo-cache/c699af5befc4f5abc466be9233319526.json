@@ -1,0 +1,20 @@
+{
+  "key": "c699af5befc4f5abc466be9233319526",
+  "operation": "complete_json",
+  "recorded_at": "2026-08-13T18:41:46.546276+00:00",
+  "recorded_provider": "gemini",
+  "recorded_model": "gemini-3.6-flash",
+  "duration_ms": 5516,
+  "usage": {
+    "input_tokens": 1275,
+    "output_tokens": 336,
+    "estimated_cost_usd": null
+  },
+  "prompt_preview": "QUESTION:\nWhat do we do if a hotel overbooks a confirmed room?\n\n=== SOPs AVAILABLE TO YOU ===\n\nSOP: Standard Operating Procedure for Hotel Overbooking and Relocation Management (version 1)\nStandard Operating Procedure for Hotel Overbooking and Relocation Management\nDefine the operational process for securing alternative accommodation, resolving rate discrepancies, and notifying travel agents prior",
+  "system_preview": "You answer operational questions using only the standard operating procedures provided to you.\n\nRules, in order of importance:\n\n1. If the SOPs provided do not contain the information needed, set answered to false and say plainly what is missing. Never fill a gap from general knowledge.\n2. When you do answer, use only what the SOPs say. Do not add steps, times, thresholds, or role names that are no",
+  "value": {
+    "answered": true,
+    "answer": "According to the Standard Operating Procedure for Hotel Overbooking and Relocation Management, follow these steps when a hotel overbooks a confirmed room:\n\n1. **Log the Issue:** Receive the overbooking notice, log it in the ticketing queue, and tag the record with 'Overbooking - High Priority'.\n2. **Contact Original Hotel:** Request a written overbooking confirmation and written agreement from the original hotel's reservation manager to cover any rate difference. If they agree in writing to arrange and directly pay for an equal or better property, validate the alternative, obtain the voucher, and jump to Step 6.\n3. **Source Alternative Property:** If necessary, identify local alternative properties of equal or superior star rating and location, check availability, and place a temporary room hold.\n4. **Finalize Reservation:** Secure the alternative reservation, confirm rate details, and establish payment arrangements (direct bill-back or corporate voucher).\n5. **Calculate Rate Variance:** Calculate the rate variance between the original and new bookings, assign payment responsibility, and log financial details in the ticket.\n6. **Notify Travel Agent:** Issue a revised booking voucher and send/call a relocation notification to the travel agent prior to guest check-in.\n7. **Pre-Arrival Verification:** Call the alternative hotel's front desk 2 hours before scheduled guest check-in to confirm guest arrival status and special requests.",
+    "reasoning_summary": "I summarized the 7-step operational workflow outlined in the Standard Operating Procedure for Hotel Overbooking and Relocation Management."
+  }
+}

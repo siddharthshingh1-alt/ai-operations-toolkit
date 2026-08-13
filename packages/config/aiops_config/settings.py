@@ -66,17 +66,27 @@ class Settings(BaseSettings):
     openai_api_key: str | None = None
     openai_model: str = "gpt-4o-mini"
     google_api_key: str | None = None
-    gemini_model: str = "gemini-2.0-flash"
+    gemini_model: str = "gemini-3.6-flash"
 
     # Anthropic offers neither embeddings nor speech-to-text, so these two
     # capabilities are configured separately from the main chat provider.
     embedding_provider: ProviderName = ProviderName.OPENAI
     openai_embedding_model: str = "text-embedding-3-small"
-    gemini_embedding_model: str = "text-embedding-004"
+    gemini_embedding_model: str = "gemini-embedding-001"
+
+    # Gemini's embedding models return 3072 dimensions by default, but
+    # pgvector cannot build an HNSW or IVFFlat index above 2000. The model
+    # supports Matryoshka truncation, so we ask for a smaller vector that is
+    # both indexable and cheaper to store.
+    #
+    # Changing this after SOPs have been embedded requires re-embedding them —
+    # the database column has a fixed width.
+    gemini_embedding_dimensions: int = Field(default=1536, gt=0, le=2000)
+
     transcribe_provider: ProviderName = ProviderName.OPENAI
     openai_transcribe_model: str = "whisper-1"
 
-    ai_max_output_tokens: int = Field(default=8192, gt=0)
+    ai_max_output_tokens: int = Field(default=24576, gt=0)
     ai_timeout_seconds: float = Field(default=90.0, gt=0)
     ai_max_retries: int = Field(default=2, ge=0, le=5)
 
@@ -111,6 +121,33 @@ class Settings(BaseSettings):
         if upper not in allowed:
             raise ValueError(f"log_level must be one of {sorted(allowed)}, got {value!r}")
         return upper
+
+    @field_validator("database_url")
+    @classmethod
+    def _normalise_database_driver(cls, value: str | None) -> str | None:
+        """Name the psycopg driver explicitly in the connection URL.
+
+        Managed Postgres providers (Supabase, Neon, Railway) hand out URLs
+        starting `postgresql://` or the legacy `postgres://`. SQLAlchemy reads
+        the bare form as "use psycopg2", which is not installed — the failure is
+        an unhelpful ModuleNotFoundError at first connection.
+
+        Rewriting it here means the connection string can be pasted exactly as
+        the provider gives it, with no hand-editing to get wrong.
+        """
+        if not value or not value.strip():
+            return value
+
+        url = value.strip()
+        for prefix in ("postgresql+psycopg://", "postgresql+psycopg2://"):
+            if url.startswith(prefix):
+                return url  # already explicit — leave the author's choice alone
+
+        for legacy in ("postgresql://", "postgres://"):
+            if url.startswith(legacy):
+                return "postgresql+psycopg://" + url[len(legacy) :]
+
+        return url
 
     @field_validator("email_provider", "calendar_provider", "booking_provider")
     @classmethod

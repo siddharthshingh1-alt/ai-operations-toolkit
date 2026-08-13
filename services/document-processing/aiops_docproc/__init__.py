@@ -1,9 +1,4 @@
-"""Shared document processing.
-
-Phase 0 ships export (Markdown / HTML / PDF). Text *extraction* from uploaded
-PDFs and Word files (PyMuPDF, python-docx) lands with Project 1, which is the
-first project that needs it — see docs/decisions/0004.
-"""
+"""Shared document processing: export and extraction."""
 
 from aiops_docproc.export import (
     Document,
@@ -16,9 +11,17 @@ from aiops_docproc.export import (
     available_formats,
     get_exporter,
 )
+from aiops_docproc.extraction import (
+    MAX_EXTRACTED_CHARS,
+    DocumentKind,
+    detect_kind,
+    extract_text,
+)
 
 __all__ = [
+    "MAX_EXTRACTED_CHARS",
     "Document",
+    "DocumentKind",
     "DocumentSection",
     "ExportFormat",
     "Exporter",
@@ -26,5 +29,7 @@ __all__ = [
     "MarkdownExporter",
     "PdfExporter",
     "available_formats",
+    "detect_kind",
+    "extract_text",
     "get_exporter",
 ]

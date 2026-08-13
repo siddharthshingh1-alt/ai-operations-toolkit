@@ -18,6 +18,25 @@ from aiops_utils import get_logger
 
 logger = get_logger(__name__)
 
+#: Project packages whose models add tables. Imported lazily by
+#: `_register_project_models` so this package never hard-depends on a project —
+#: the dependency direction stays one-way (see docs/architecture).
+_PROJECT_MODEL_MODULES = ("aiops_sop.models",)
+
+
+def _register_project_models() -> None:
+    """Import each project's models so `create_all()` knows about their tables."""
+    import importlib
+
+    for module in _PROJECT_MODEL_MODULES:
+        try:
+            importlib.import_module(module)
+        except ImportError:  # pragma: no cover — that project is not installed
+            logger.debug(
+                "project models not available; their tables will not be created",
+                extra={"module": module},
+            )
+
 
 def enable_pgvector(settings: Settings | None = None) -> bool:
     """Enable the `vector` extension, needed for SOP semantic search (Project 1).
@@ -51,6 +70,7 @@ def has_pgvector(settings: Settings | None = None) -> bool:
 def create_all(settings: Settings | None = None) -> None:
     """Create every table declared on `Base`. Safe to run repeatedly."""
     settings = settings or get_settings()
+    _register_project_models()
     enable_pgvector(settings)
     Base.metadata.create_all(bind=get_engine(settings))
     logger.info("database schema created", extra={"tables": len(Base.metadata.tables)})

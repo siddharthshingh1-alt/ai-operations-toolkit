@@ -11,9 +11,9 @@ This is not a general AI showcase. Every project maps to a stated requirement of
 the role it targets, and anything that could not be justified against that was
 cut or merged rather than kept for volume. The reasoning is on the record below.
 
-> **Current state: Phase 0 complete.** The foundation is built, tested, and
-> runs. None of the nine projects is implemented yet — the UI says so, and this
-> README will not claim otherwise until they are.
+> **Current state: Project 1 shipped.** The foundation and the AI SOP Generator
+> are built, tested, and running. The other eight projects are not implemented
+> yet — the UI says so, and this README will not claim otherwise until they are.
 
 ---
 
@@ -21,7 +21,7 @@ cut or merged rather than kept for volume. The reasoning is on the record below.
 
 | # | Project | JD requirement it proves | AI capability | Business impact | Live demo |
 |---|---------|--------------------------|---------------|-----------------|-----------|
-| 1 | AI SOP Generator | Document and standardize scalable operational processes | Structured generation + citation-backed semantic search (pgvector) | TBM | planned |
+| 1 | **AI SOP Generator** | Document and standardize scalable operational processes | Structured generation + citation-backed semantic search (pgvector) | ~120 hrs/yr* | [code](projects/ai-sop-generator/) · not yet deployed |
 | 2 | AI Operations Dashboard | Build dashboards; analyze operational data | Insight layer over deterministic trend/anomaly detection | TBM | planned |
 | 3 | **AI Travel Operations** (flagship) | Identify operational bottlenecks and solve them using AI | Incident classification, affected-booking lookup, drafted agent comms | TBM | planned |
 | 4 | AI Workflow Builder | Build AI-assisted workflows and automations | AI nodes inside a visual workflow editor | TBM | planned |
@@ -31,8 +31,8 @@ cut or merged rather than kept for volume. The reasoning is on the record below.
 | 8 | AI Ops Command Center | Collaborate cross-functionally to drive execution | Daily Ops Brief aggregated from the others | TBM | planned |
 | 9 | AI Meeting Assistant (stretch) | Collaborate cross-functionally | Whisper transcription + decision extraction | TBM | planned |
 
-*TBM = to be measured, and it will be labelled a simulated demo estimate against
-synthetic data, never a claim of real-world deployment.*
+*\* Simulated demo estimate against synthetic data — not a measured result and
+not a claim of real-world deployment. TBM = to be measured, on the same basis.*
 
 Build order and reasoning: [`CLAUDE.md`](CLAUDE.md) Section 8.
 

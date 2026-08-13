@@ -17,6 +17,7 @@ dependencies = [
     "aiops-workflow",
     "aiops-analytics",
     "aiops-docproc",
+    "aiops-sop",
 
     # The web framework itself. These belong here rather than floating at the
     # repo root: the API is the only thing that needs them, and declaring them

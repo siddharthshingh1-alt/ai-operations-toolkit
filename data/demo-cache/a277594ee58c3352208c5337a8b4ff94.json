@@ -1,0 +1,162 @@
+{
+  "key": "a277594ee58c3352208c5337a8b4ff94",
+  "operation": "complete_json",
+  "recorded_at": "2026-08-13T18:41:11.233559+00:00",
+  "recorded_provider": "gemini",
+  "recorded_model": "gemini-3.6-flash",
+  "duration_ms": 22450,
+  "usage": {
+    "input_tokens": 2209,
+    "output_tokens": 1807,
+    "estimated_cost_usd": null
+  },
+  "prompt_preview": "PROCESS TO DOCUMENT:\nA hotel tells us they have overbooked and cannot honour a room we have already confirmed to a travel agent. We have to find an equivalent or better property nearby, agree who covers any rate difference, get the hotel to confirm in writing, and tell the agent before the traveller arrives at the original hotel. This currently depends on whoever picks up the email and how well th",
+  "system_preview": "You write standard operating procedures for the operations team of a B2B travel company. Their customers are travel agents who book flights, hotels, and holiday packages on behalf of travellers.\n\nWrite the SOP an experienced operations lead would write:\n\n- Steps are concrete actions someone can follow under pressure. \"Contact the airline's trade desk and request the rebooking options for the affec",
+  "value": {
+    "title": "Standard Operating Procedure for Hotel Overbooking and Relocation Management",
+    "purpose": "Define the operational process for securing alternative accommodation, resolving rate discrepancies, and notifying travel agents prior to traveller check-in when a confirmed hotel overbooks.",
+    "scope": "Applies to all confirmed hotel reservations managed by the Hotel Operations team where the supplier or hotel property reports an overbooking situation.",
+    "prerequisites": [
+      "Active booking reference and itinerary details in the reservation management system",
+      "Contact details for the original hotel property, alternative local properties, and booking travel agent",
+      "Access to operational emergency funding or rate adjustment authorization guidelines"
+    ],
+    "roles": [
+      "Operations Associate",
+      "Operations Team Lead",
+      "Hotel Partner Account Manager"
+    ],
+    "procedure": [
+      {
+        "number": 1,
+        "instruction": "Receive overbooking notice from the hotel or supplier, log the issue in the ticketing queue, and tag the record with 'Overbooking - High Priority'.",
+        "responsible": "Operations Associate",
+        "expected_result": "Ticket logged with booking reference, original hotel details, check-in date/time, and high-priority tag applied."
+      },
+      {
+        "number": 2,
+        "instruction": "Contact the original hotel's reservation manager to request written overbooking confirmation and written agreement to cover any rate difference for an alternative property.",
+        "responsible": "Operations Associate",
+        "expected_result": "Written statement of overbooking and confirmation of payment responsibility received from original hotel."
+      },
+      {
+        "number": 3,
+        "instruction": "Identify local alternative properties of equal or superior star rating and location, then check availability and secure a temporary room hold.",
+        "responsible": "Operations Associate",
+        "expected_result": "At least one comparable alternative property identified with a temporary room hold confirmed."
+      },
+      {
+        "number": 4,
+        "instruction": "Finalize the alternative hotel reservation, confirm rate details, and establish payment arrangement (direct hotel bill-back or corporate voucher).",
+        "responsible": "Operations Associate",
+        "expected_result": "Written booking confirmation voucher issued by the alternative hotel."
+      },
+      {
+        "number": 5,
+        "instruction": "Calculate rate variance between original and new bookings, assign payment responsibility per contract rules, and log financial details in ticket.",
+        "responsible": "Operations Associate",
+        "expected_result": "Rate variance documented and payment routing finalized with billing approval."
+      },
+      {
+        "number": 6,
+        "instruction": "Issue revised booking voucher and dispatch relocation notification email/call to the travel agent prior to guest check-in.",
+        "responsible": "Operations Associate",
+        "expected_result": "Travel agent acknowledges receipt of updated voucher and confirmed check-in details."
+      },
+      {
+        "number": 7,
+        "instruction": "Call the front desk of the alternative hotel 2 hours prior to scheduled guest check-in to confirm guest arrival status and special requests.",
+        "responsible": "Operations Associate",
+        "expected_result": "Alternative hotel confirms guest reservation is active and front desk is prepared for guest arrival."
+      }
+    ],
+    "decision_points": [
+      {
+        "at_step": 2,
+        "question": "Does the original hotel agree in writing to arrange and directly pay for alternative accommodation of equal or better standard?",
+        "if_yes": "Validate that the hotel's proposed alternative meets category and location standards, obtain voucher, and skip to Step 6.",
+        "if_no": "Proceed to Step 3 to source alternative accommodation manually and enforce rate differential billing."
+      },
+      {
+        "at_step": 5,
+        "question": "Does the accommodation rate difference exceed standard operational discretionary limits or does the original hotel refuse rate difference coverage?",
+        "if_yes": "Escalate ticket immediately to Operations Team Lead for financial approval or vendor dispute handling.",
+        "if_no": "Approve price variance within associate authorization limit and proceed to Step 6."
+      }
+    ],
+    "exceptions": [
+      {
+        "situation": "Original hotel fails to respond to phone calls or written requests within 30 minutes of overbooking report.",
+        "action": "Source alternative accommodation immediately using local directory, reserve room using operational hold funds, and escalate vendor non-responsiveness to Hotel Partner Account Manager."
+      },
+      {
+        "situation": "Travel agent cannot be reached by phone or email before guest arrives at original property.",
+        "action": "Contact original hotel front desk directly, instruct them to hand guest the printed relocation notice upon arrival, arrange taxi transport to new hotel, and continue contacting agent."
+      },
+      {
+        "situation": "No equivalent or higher category hotel is available within reasonable proximity of original hotel.",
+        "action": "Contact travel agent immediately to offer options including expanded geographical radius or full penalty-free cancellation with emergency refund."
+      }
+    ],
+    "escalation_rules": [
+      {
+        "trigger": "Original hotel refuses to pay rate difference or assist with guest relocation.",
+        "escalate_to": "Operations Team Lead",
+        "within": "30 minutes of hotel refusal"
+      },
+      {
+        "trigger": "Guest arrival time is within 2 hours and alternative accommodation remains unconfirmed.",
+        "escalate_to": "Operations Team Lead",
+        "within": "15 minutes of reaching 2-hour check-in window"
+      },
+      {
+        "trigger": "Original hotel reports overbooking on more than two separate bookings within a 30-day period.",
+        "escalate_to": "Hotel Partner Account Manager",
+        "within": "24 hours of incident resolution"
+      }
+    ],
+    "checklist": [
+      "Verify guest check-in date and estimated arrival time.",
+      "Obtain written overbooking confirmation from original hotel.",
+      "Confirm alternative property star rating and location parity.",
+      "Secure written room reservation and rate guarantee from alternative hotel.",
+      "Document rate difference absorption agreement or billing path.",
+      "Send updated reservation voucher to travel agent before guest check-in.",
+      "Conduct pre-check-in verification call to alternative hotel front desk."
+    ],
+    "kpis": [
+      {
+        "name": "Pre-Arrival Relocation Rate",
+        "target": "100%",
+        "how_measured": "Percentage of overbooked bookings where agent notification and alternative voucher issuance occur before traveller arrival."
+      },
+      {
+        "name": "Mean Time to Relocate (MTTR)",
+        "target": "Under 45 minutes",
+        "how_measured": "Average time elapsed from initial overbooking alert logged to final voucher sent to travel agent."
+      },
+      {
+        "name": "Relocation Incident Escalation Rate",
+        "target": "Less than 10%",
+        "how_measured": "Percentage of overbooking tickets requiring Team Lead or Account Manager intervention."
+      }
+    ],
+    "risks": [
+      {
+        "description": "Traveller arrives at original hotel without prior notice, resulting in poor guest experience and partner friction.",
+        "severity": "high",
+        "mitigation": "Require direct contact with original front desk staff to leave written arrival instructions if agent cannot be reached."
+      },
+      {
+        "description": "Unrecovered rate difference costs incurred due to failure to secure written cost-absorption agreement from original hotel.",
+        "severity": "medium",
+        "mitigation": "Mandate written rate variance agreement prior to ticket closure and log dispute flags for account manager review."
+      }
+    ],
+    "improvement_suggestions": [
+      "Build a dynamic preferred alternative hotel matrix mapped by location and star rating to eliminate associate reliance on local market knowledge.",
+      "Implement automated SMS and instant messaging notification workflows to alert travel agents and travellers simultaneously during urgent relocations.",
+      "Create an automated supplier chargeback mechanism to streamline recovery of rate differentials from non-compliant properties."
+    ]
+  }
+}
