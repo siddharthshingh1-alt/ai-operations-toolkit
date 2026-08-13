@@ -1,0 +1,82 @@
+# =============================================================================
+# Root Python tooling configuration.
+#
+# This file configures the linter (ruff), type checker (mypy) and test runner
+# (pytest) for the WHOLE monorepo. The actual Python packages each have their
+# own pyproject.toml declaring their own dependencies — see requirements.txt.
+# =============================================================================
+
+[tool.ruff]
+line-length = 100
+# Matches `requires-python = ">=3.12"` in every package's pyproject.toml.
+# Keep the two in sync — ruff tailors its modernisation hints to this.
+target-version = "py312"
+extend-exclude = [".venv", "node_modules", ".next", "data/generated"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # import sorting
+    "B",   # bugbear (likely bugs)
+    "UP",  # pyupgrade (modern syntax)
+    "C4",  # comprehensions
+    "SIM", # simplify
+    "TID", # tidy imports
+]
+ignore = [
+    "E501", # line length is enforced by the formatter, not the linter
+    "B008", # FastAPI's Depends() in defaults is idiomatic, not a bug
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"]
+
+[tool.ruff.lint.isort]
+# The workspace packages are pip-installed in editable mode, so ruff would
+# otherwise sort them as third-party. Naming them keeps local imports grouped
+# together and below the real third-party block.
+known-first-party = [
+    "aiops_adapters", "aiops_ai", "aiops_analytics", "aiops_config",
+    "aiops_db", "aiops_docproc", "aiops_utils", "aiops_workflow", "app",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+
+
+[tool.mypy]
+python_version = "3.12"
+files = ["packages", "services", "apps/api", "scripts", "tests"]
+exclude = ["\\.venv", "node_modules", "build", "dist"]
+mypy_path = "apps/api"
+plugins = ["pydantic.mypy"]
+
+# Pragmatic settings: strict enough to catch real bugs, not so strict that
+# third-party libraries without type stubs block the build. (CLAUDE.md §3:
+# "mypy where practical".)
+ignore_missing_imports = true
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = false
+check_untyped_defs = true
+disallow_untyped_defs = true
+no_implicit_optional = true
+
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests", "apps/api/tests", "packages", "services"]
+pythonpath = ["apps/api"]
+python_files = ["test_*.py"]
+addopts = [
+    "-q",
+    "--strict-markers",
+    "--strict-config",
+]
+markers = [
+    "integration: requires a live database or network",
+]
+asyncio_mode = "auto"
+filterwarnings = ["error::DeprecationWarning:aiops_.*"]

@@ -1,0 +1,73 @@
+# Local development only.
+#
+# The deployed version does NOT require Docker — CLAUDE.md Section 3a is
+# explicit that a hiring manager should never have to stand up containers to
+# evaluate this. Use this file when you want a real Postgres with pgvector on
+# your own machine.
+#
+#   docker compose up -d db     just the database (most common)
+#   docker compose up           the whole stack
+#
+# Then set in .env:
+#   DATABASE_URL=postgresql+psycopg://aiops:aiops@localhost:5432/aiops
+
+services:
+  db:
+    # The pgvector image is stock Postgres with the extension already compiled
+    # in, which avoids a build step just to enable semantic search.
+    image: pgvector/pgvector:pg17
+    container_name: aiops-db
+    environment:
+      POSTGRES_USER: aiops
+      POSTGRES_PASSWORD: aiops
+      POSTGRES_DB: aiops
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      # Other services wait for this, so they never start against a database
+      # that is still initialising.
+      test: ["CMD-SHELL", "pg_isready -U aiops -d aiops"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: aiops-api
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg://aiops:aiops@db:5432/aiops
+      DB_AUTO_CREATE: "true"
+      DEMO_MODE: "true"
+      CORS_ORIGINS: http://localhost:3000
+    env_file:
+      # Optional: supplies API keys if you have created one. Missing is fine.
+      - path: .env
+        required: false
+    ports:
+      - "8000:8000"
+    volumes:
+      # Demo datasets and recordings live on the host so they survive a rebuild.
+      - ./data:/repo/data
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: aiops-web
+    depends_on:
+      - api
+    environment:
+      # Browser-side requests resolve on the host, not the compose network.
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+
+volumes:
+  db-data:

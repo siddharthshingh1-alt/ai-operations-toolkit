@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aiops-docproc"
+version = "0.1.0"
+description = "Shared document export (Markdown, HTML, PDF). Built once and consumed by the SOP Generator and Report Generator."
+requires-python = ">=3.12"
+dependencies = [
+    "aiops-config",
+    "aiops-utils",
+    "pydantic>=2.8",
+]
+
+[project.optional-dependencies]
+# WeasyPrint needs native GTK/Pango libraries that are not present on a stock
+# Windows machine, so it is not a hard dependency. `pip install .[pdf]` after
+# installing GTK enables PDF export; without it, Markdown and HTML still work.
+pdf = ["weasyprint>=62"]
+
+[tool.setuptools]
+packages = ["aiops_docproc"]

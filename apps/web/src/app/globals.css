@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+/*
+ * CLAUDE.md Section 21: clean, minimal, professional. This should read as an
+ * internal operations platform, not an AI demo site — so the palette is a
+ * neutral slate with a single restrained accent.
+ */
+
+:root {
+  --background: #f8fafc;
+  --surface: #ffffff;
+  --foreground: #0f172a;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --accent: #0f766e;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #020617;
+    --surface: #0f172a;
+    --foreground: #e2e8f0;
+    --muted: #94a3b8;
+    --border: #1e293b;
+    --accent: #2dd4bf;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border-subtle: var(--border);
+  --color-accent: var(--accent);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Visible keyboard focus everywhere — accessibility is a Section 21 requirement. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

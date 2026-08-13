@@ -1,0 +1,45 @@
+{
+  "name": "ai-operations-toolkit",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AI Operations Toolkit — a JD-aligned portfolio of AI-assisted workflows, SOPs, dashboards, trackers, and automations for B2B travel operations.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "workspaces": [
+    "apps/web",
+    "packages/types",
+    "packages/ui"
+  ],
+  "scripts": {
+    "dev": "concurrently -n api,web -c cyan,magenta \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:web": "npm run dev --workspace apps/web",
+    "dev:api": "node scripts/py.mjs --cwd apps/api -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000",
+
+    "build": "npm run build:web",
+    "build:web": "npm run build --workspace apps/web",
+
+    "lint": "npm run lint:web && npm run lint:py",
+    "lint:web": "npm run lint --workspace apps/web",
+    "lint:py": "node scripts/py.mjs -m ruff check .",
+    "format:py": "node scripts/py.mjs -m ruff format .",
+
+    "typecheck": "npm run typecheck:web && npm run typecheck:py",
+    "typecheck:web": "npm run typecheck --workspace apps/web",
+    "typecheck:py": "node scripts/py.mjs -m mypy .",
+
+    "test": "npm run test:py",
+    "test:py": "node scripts/py.mjs -m pytest",
+
+    "setup:py": "node scripts/py.mjs -m pip install -r requirements-dev.txt",
+    "demo-data": "node scripts/py.mjs scripts/generate_demo_data.py",
+    "record-demo": "node scripts/py.mjs scripts/record_demo_outputs.py",
+
+    "verify": "npm run lint && npm run typecheck && npm run test && npm run build"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

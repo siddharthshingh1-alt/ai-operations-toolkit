@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aiops-workflow"
+version = "0.1.0"
+description = "The shared workflow engine (CLAUDE.md Section 7). Project 4 is a UI on top of this, not a second engine."
+requires-python = ">=3.12"
+dependencies = [
+    "aiops-config",
+    "aiops-utils",
+    "pydantic>=2.8",
+]
+
+[tool.setuptools]
+packages = ["aiops_workflow"]

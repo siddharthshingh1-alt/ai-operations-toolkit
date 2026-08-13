@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aiops-config"
+version = "0.1.0"
+description = "Shared, validated configuration for the AI Operations Toolkit."
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2.8",
+    "pydantic-settings>=2.4",
+]
+
+[tool.setuptools]
+packages = ["aiops_config"]

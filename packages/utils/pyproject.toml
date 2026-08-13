@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aiops-utils"
+version = "0.1.0"
+description = "Shared utilities: structured logging, IDs, timing, error types."
+requires-python = ">=3.12"
+dependencies = [
+    "aiops-config",
+]
+
+[tool.setuptools]
+packages = ["aiops_utils"]

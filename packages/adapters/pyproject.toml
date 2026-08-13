@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aiops-adapters"
+version = "0.1.0"
+description = "Integration adapters (email, calendar, booking). v1 is mock-only by decision — see docs/decisions/0003."
+requires-python = ">=3.12"
+dependencies = [
+    "aiops-config",
+    "aiops-utils",
+    "pydantic>=2.8",
+]
+
+[tool.setuptools]
+packages = ["aiops_adapters"]

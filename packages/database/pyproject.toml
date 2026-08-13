@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aiops-db"
+version = "0.1.0"
+description = "PostgreSQL + pgvector access layer: engine, session, base model, activity log."
+requires-python = ">=3.12"
+dependencies = [
+    "aiops-config",
+    "aiops-utils",
+    "sqlalchemy>=2.0",
+    "psycopg[binary]>=3.2",
+    "pgvector>=0.3",
+    "alembic>=1.13",
+]
+
+[tool.setuptools]
+packages = ["aiops_db"]

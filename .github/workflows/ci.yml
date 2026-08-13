@@ -1,0 +1,108 @@
+name: CI
+
+# CLAUDE.md Section 3: lint + typecheck + test on every push.
+# The two halves run in parallel — a Python failure should not hide a
+# TypeScript one, and a green badge here is meant to be worth trusting.
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  # A new push supersedes an in-flight run on the same branch.
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.12"
+  NODE_VERSION: "22"
+
+jobs:
+  backend:
+    name: Backend (ruff, mypy, pytest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Generate demo data
+        # The adapter tests read these datasets, and they are gitignored
+        # because the generator is deterministic and reproduces them exactly.
+        run: python scripts/generate_demo_data.py
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Check formatting
+        run: ruff format --check .
+
+      - name: Type check
+        run: mypy .
+
+      - name: Test
+        run: pytest
+
+  frontend:
+    name: Frontend (eslint, tsc, build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint:web
+
+      - name: Type check
+        run: npm run typecheck:web
+
+      - name: Build
+        run: npm run build:web
+
+  secrets:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history so the scan covers every commit, not just the tip.
+          fetch-depth: 0
+
+      - name: Check no .env file is committed
+        # CLAUDE.md Section 24: never commit secrets. `.env.example` is the
+        # only env file that belongs in the repo.
+        run: |
+          if git ls-files --error-unmatch .env 2>/dev/null; then
+            echo "::error::.env is committed. Remove it and rotate any exposed keys."
+            exit 1
+          fi
+          echo "No .env committed."
+
+      - name: Scan for API key patterns
+        run: |
+          # Provider key prefixes. `.env.example` is excluded because it
+          # deliberately contains empty placeholders.
+          if git grep -nIE '(sk-ant-[A-Za-z0-9_-]{20,}|sk-proj-[A-Za-z0-9_-]{20,}|AIza[A-Za-z0-9_-]{30,})' \
+               -- . ':(exclude).env.example' ':(exclude).github/workflows/ci.yml'; then
+            echo "::error::A value matching an API key pattern is committed. Rotate it immediately."
+            exit 1
+          fi
+          echo "No API key patterns found."

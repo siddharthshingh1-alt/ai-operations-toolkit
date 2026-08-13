@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aiops-analytics"
+version = "0.1.0"
+description = "Deterministic data profiling, trend and anomaly detection. AI is used only for the insight layer on top (CLAUDE.md Section 11)."
+requires-python = ">=3.12"
+dependencies = [
+    "aiops-utils",
+    "pandas>=2.2",
+    "openpyxl>=3.1",
+    "pydantic>=2.8",
+]
+
+[tool.setuptools]
+packages = ["aiops_analytics"]
