@@ -21,10 +21,11 @@
     "build": "npm run build:web",
     "build:web": "npm run build --workspace apps/web",
 
-    "lint": "npm run lint:web && npm run lint:py",
+    "lint": "npm run lint:web && npm run lint:py && npm run format:check",
     "lint:web": "npm run lint --workspace apps/web",
     "lint:py": "node scripts/py.mjs -m ruff check .",
     "format:py": "node scripts/py.mjs -m ruff format .",
+    "format:check": "node scripts/py.mjs -m ruff format --check .",
 
     "typecheck": "npm run typecheck:web && npm run typecheck:py",
     "typecheck:web": "npm run typecheck --workspace apps/web",

@@ -20,7 +20,16 @@ from app.main import create_app
 
 @pytest.fixture
 def client() -> TestClient:
-    return TestClient(create_app())
+    """A client that reports server errors as responses rather than raising.
+
+    These tests assert on the HTTP *contract* — which status code a given body
+    produces. Whether a route then succeeds depends on a reachable database,
+    which a unit test must not require: with the default
+    `raise_server_exceptions=True`, a database that is merely slow or
+    unreachable propagates as an exception and the test fails for a reason
+    that has nothing to do with what it is checking.
+    """
+    return TestClient(create_app(), raise_server_exceptions=False)
 
 
 def _request_body_schema(client: TestClient, path: str, method: str = "post") -> dict:
@@ -78,12 +87,11 @@ def test_ask_rejects_a_wrapped_body(client: TestClient) -> None:
 def test_ask_accepts_a_flat_body(client: TestClient) -> None:
     """A correct body must get past validation.
 
-    It will fail later without a database, but the point is that it is no
-    longer rejected as malformed — a 422 here would mean the contract is wrong.
+    What happens after validation depends on the database, which this test
+    deliberately does not require — 422 is the only status that would mean the
+    contract itself is wrong.
     """
-    response = client.post(
-        "/api/sop/search/ask", json={"question": "How do we handle delays?"}
-    )
+    response = client.post("/api/sop/search/ask", json={"question": "How do we handle delays?"})
     assert response.status_code != 422
 
 
