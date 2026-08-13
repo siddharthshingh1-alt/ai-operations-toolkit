@@ -1,0 +1,67 @@
+# Render blueprint for the API (CLAUDE.md Section 3a — deployment is non-optional).
+#
+# Render reads this when you create a Blueprint instance, so the service is
+# configured from version control rather than by hand in a dashboard. The only
+# things you enter manually are the two secrets, which is deliberate: values
+# marked `sync: false` are never written into the repository.
+#
+# The web app deploys separately to Vercel — see DEPLOYMENT.md.
+
+services:
+  - type: web
+    name: aiops-api
+    runtime: docker
+    dockerfilePath: ./apps/api/Dockerfile
+    # Built from the repository root so the shared packages resolve.
+    dockerContext: .
+    plan: free
+    region: singapore
+    branch: main
+
+    # Render restarts the service if this stops returning 200. It is the
+    # liveness probe, which never touches the database — a readiness failure
+    # should not cause a restart loop.
+    healthCheckPath: /health
+
+    envVars:
+      # ---- entered by you in the Render dashboard, never stored in git ----
+      - key: DATABASE_URL
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+
+      # ---- safe to keep in version control ----
+
+      # Demo Mode on a public URL is deliberate. It means the deployment needs
+      # no API key at all, so there is no key to leak and no quota for a
+      # visitor to exhaust — while every AI output shown is a real recorded
+      # response (CLAUDE.md Section 3b).
+      - key: DEMO_MODE
+        value: "true"
+      - key: ALLOW_BRING_YOUR_OWN_KEY
+        value: "true"
+
+      - key: AI_PROVIDER
+        value: gemini
+      - key: EMBEDDING_PROVIDER
+        value: gemini
+      - key: GEMINI_EMBEDDING_DIMENSIONS
+        value: "1536"
+
+      - key: APP_ENV
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+
+      # The tables already exist in Supabase; do not recreate them on boot.
+      - key: DB_AUTO_CREATE
+        value: "false"
+
+      - key: AUTH_MODE
+        value: demo
+      - key: EMAIL_PROVIDER
+        value: mock
+      - key: CALENDAR_PROVIDER
+        value: mock
+      - key: BOOKING_PROVIDER
+        value: mock

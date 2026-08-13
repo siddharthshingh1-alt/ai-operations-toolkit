@@ -196,6 +196,7 @@ demo that fakes its output would prove the opposite of the point.
 - [`CLAUDE.md`](CLAUDE.md) — the full specification this is built against
 - [`docs/architecture/`](docs/architecture/README.md) — system design
 - [`docs/decisions/`](docs/decisions/) — architectural decisions with reasoning
+- [`DEPLOYMENT.md`](DEPLOYMENT.md) — putting it on a public URL, step by step
 - [`CONTRIBUTING.md`](CONTRIBUTING.md) — conventions and quality gates
 - [`SECURITY.md`](SECURITY.md) — what the code refuses to do, and where that is enforced
 

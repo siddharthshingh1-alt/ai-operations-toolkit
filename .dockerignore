@@ -1,0 +1,48 @@
+# Everything here is excluded from the Docker build context.
+#
+# Without this, the build uploads node_modules and .venv — hundreds of
+# megabytes of files the image rebuilds from scratch anyway — which makes the
+# deploy slow and can exhaust the build host's disk.
+
+# Dependencies, reinstalled inside the image
+node_modules/
+.venv/
+venv/
+
+# Build output
+.next/
+out/
+dist/
+build/
+*.egg-info/
+
+# Caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.turbo/
+
+# Secrets — belt and braces. These must never reach an image layer, since a
+# layer persists even if a later step deletes the file.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Version control and CI
+.git/
+.github/
+
+# Generated datasets — the image runs the generator itself
+data/generated/
+
+# Local-only
+storage/
+uploads/
+*.db
+*.sqlite3
+.vscode/
+.idea/
