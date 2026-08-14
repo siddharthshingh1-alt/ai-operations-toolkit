@@ -30,14 +30,30 @@ services:
       - key: CORS_ORIGINS
         sync: false
 
+      # The live AI key. `sync: false` keeps it out of the repository — it is
+      # typed into Render's dashboard and only ever exists in the API's own
+      # process. It is never sent to the browser: the web app calls this API
+      # from its server, and `Settings.redacted()` is an allowlist that cannot
+      # serialise a key even by mistake.
+      - key: GOOGLE_API_KEY
+        sync: false
+
       # ---- safe to keep in version control ----
 
-      # Demo Mode on a public URL is deliberate. It means the deployment needs
-      # no API key at all, so there is no key to leak and no quota for a
-      # visitor to exhaust — while every AI output shown is a real recorded
-      # response (CLAUDE.md Section 3b).
+      # The public demo runs LIVE, not from recordings (CLAUDE.md Section 3b).
+      #
+      # The trade this accepts: a real key sits on the server and a visitor's
+      # request spends real quota. The trade it buys: a visitor can type their
+      # own question and get a real answer, which is the thing the portfolio is
+      # actually claiming to be able to do. On a free tier with no billing
+      # attached the downside is bounded — the quota runs out and the app says
+      # so in plain language — where the downside of a recordings-only demo is
+      # that the central claim is never demonstrated to anyone.
+      #
+      # The recordings remain in the repository and are one setting away:
+      # DEMO_MODE=true replays them, which is what local development and CI use.
       - key: DEMO_MODE
-        value: "true"
+        value: "false"
       - key: ALLOW_BRING_YOUR_OWN_KEY
         value: "true"
 

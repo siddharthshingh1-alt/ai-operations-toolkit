@@ -187,19 +187,50 @@ way to evaluate this portfolio.
 
 ---
 
-# 3b. DEMO MODE (NON-OPTIONAL — NEW)
+# 3b. DEMO MODE AND LIVE MODE (NON-OPTIONAL)
 
-Every project must work for a reviewer who supplies **zero API keys**:
+Every project must work for a reviewer who supplies **zero API keys**. Two mechanisms
+satisfy that, and which one the *public deployment* uses was revised on 2026-08-15.
 
-* A "Demo Mode" toggle uses realistic, pre-generated/cached AI outputs against the
-  bundled synthetic datasets (Section 24).
-* A "Bring your own key" mode lets a technical reviewer paste an API key and see the
-  AI actually run live, for anyone who wants to verify it's not faked.
+**The public deployment runs LIVE AI, not recordings.**
+
+The original decision was the reverse: Demo Mode public, so no key sat on a public
+server and no visitor could spend quota. That reasoning was sound and was rejected
+anyway, because of what it cost. The portfolio's central claim is that AI does real
+work here. A visitor who types their own question and is told "no recording for this"
+has been shown the claim being *declined*, precisely at the moment they tried to test
+it. Protecting a free-tier quota is not worth failing the one interaction that
+matters.
+
+The trade being accepted, stated so nobody has to reconstruct it later:
+
+* A real key sits in the API's environment. It is `sync: false` in `render.yaml`,
+  exists only in the API process, and can never reach the browser — the web app calls
+  the API from its own server, and `Settings.redacted()` is an allowlist that cannot
+  serialise a secret even by mistake. **This property is not negotiable in any future
+  change.**
+* Visitors spend real quota. On a free tier with no billing attached, the ceiling is
+  a quota error rather than a bill. Use a key from a project with **no billing
+  account**, or a hard budget cap.
+* The quota will sometimes be exhausted. That is an expected end state, not a fault,
+  and must surface as `AIQuotaExhausted` — a plain-language message naming the free
+  tier and telling the visitor to come back tomorrow. Never a raw provider error.
+
+**Demo Mode remains, as the fallback and the test path.** `DEMO_MODE=true` replays
+recorded real outputs from `data/demo-cache/`. Local development and CI use it, so
+the test suite needs no key and spends no quota. The recordings stay in the
+repository; the public default is one environment variable away from reverting.
+
+Rules that did not change:
+
 * Clearly label which mode is active in the UI at all times. Never blur the two.
-
-This is different from "fake functionality" (banned in Section 2) — the underlying
-AI call is real and was actually made once; Demo Mode replays a recorded real output
-rather than simulating one that never happened.
+* Demo Mode replays an output a real model really produced. It never simulates one.
+  This is what separates it from "fake functionality" (banned in Section 2).
+* A "bring your own key" path lets a reviewer supply their own key. **Status: not
+  implemented.** `ALLOW_BRING_YOUR_OWN_KEY` is honoured by `get_provider()`, but no
+  UI collects a key. With the public demo now live by default this is far less
+  pressing than it was, but it is still owed — and until it is built, no README, UI
+  or document may describe it as available.
 
 ---
 

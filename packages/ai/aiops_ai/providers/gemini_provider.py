@@ -28,6 +28,7 @@ from aiops_ai.types import AIResult, TranscriptResult, Usage
 from aiops_config import Settings
 from aiops_utils import (
     AIProviderError,
+    AIQuotaExhausted,
     ConfigurationError,
     Stopwatch,
     ValidationError,
@@ -37,6 +38,23 @@ from aiops_utils import (
 logger = get_logger(__name__)
 
 _T = TypeVar("_T")
+
+#: Substrings identifying a spent quota or rate limit in a Gemini SDK error.
+#:
+#: Matched on the message rather than an exception type because the SDK reports
+#: these as the same broad error family as everything else. `429` and
+#: `resource_exhausted` are what the API actually returns; the rest are there
+#: because the wording has changed before and a missed match downgrades a clear
+#: message back into a generic one.
+_QUOTA_MARKERS = (
+    "429",
+    "resource_exhausted",
+    "resource exhausted",
+    "quota",
+    "rate limit",
+    "rate_limit",
+    "too many requests",
+)
 
 _NO_TRANSCRIPTION = (
     "Speech-to-text is routed to Whisper. Set TRANSCRIBE_PROVIDER=openai and supply OPENAI_API_KEY."
@@ -102,6 +120,20 @@ class GeminiProvider(AIProvider):
             except Exception as exc:  # noqa: BLE001 — SDK raises a broad family
                 last = exc
                 message = str(exc).lower()
+
+                # A spent quota is a final state, not a transient failure.
+                # Retrying cannot help, and the backoff would only make the
+                # visitor wait 14 seconds to be told the same thing. It is also
+                # not an error in the ordinary sense: the public demo runs live
+                # AI on a free tier on purpose, so this is the documented end of
+                # a day's budget.
+                if any(marker in message for marker in _QUOTA_MARKERS):
+                    logger.info(
+                        "Gemini quota exhausted",
+                        extra={"what": what, "error": str(exc)[:160]},
+                    )
+                    raise AIQuotaExhausted(f"Gemini {what} hit a quota limit: {exc}") from exc
+
                 transient = any(
                     marker in message
                     for marker in (

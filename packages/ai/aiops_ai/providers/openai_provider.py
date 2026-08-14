@@ -22,6 +22,7 @@ from aiops_utils import (
     ConfigurationError,
     Stopwatch,
     ValidationError,
+    provider_http_error,
 )
 
 
@@ -76,7 +77,9 @@ class OpenAIProvider(AIProvider):
         except openai.APITimeoutError as exc:
             raise AIProviderTimeout(f"OpenAI timed out: {exc}") from exc
         except openai.APIStatusError as exc:
-            raise AIProviderError(f"OpenAI returned {exc.status_code}: {exc}") from exc
+            raise provider_http_error(
+                f"OpenAI returned {exc.status_code}: {exc}", status_code=exc.status_code
+            ) from exc
         except openai.APIConnectionError as exc:
             raise AIProviderError(f"Could not reach OpenAI: {exc}") from exc
 
@@ -174,7 +177,10 @@ class OpenAIProvider(AIProvider):
         except openai.APITimeoutError as exc:
             raise AIProviderTimeout(f"OpenAI embeddings timed out: {exc}") from exc
         except openai.APIStatusError as exc:
-            raise AIProviderError(f"OpenAI embeddings returned {exc.status_code}: {exc}") from exc
+            raise provider_http_error(
+                f"OpenAI embeddings returned {exc.status_code}: {exc}",
+                status_code=exc.status_code,
+            ) from exc
 
         # The API may return items out of order; `index` is authoritative.
         vectors = [item.embedding for item in sorted(response.data, key=lambda d: d.index)]
@@ -202,8 +208,9 @@ class OpenAIProvider(AIProvider):
         except openai.APITimeoutError as exc:
             raise AIProviderTimeout(f"OpenAI transcription timed out: {exc}") from exc
         except openai.APIStatusError as exc:
-            raise AIProviderError(
-                f"OpenAI transcription returned {exc.status_code}: {exc}"
+            raise provider_http_error(
+                f"OpenAI transcription returned {exc.status_code}: {exc}",
+                status_code=exc.status_code,
             ) from exc
 
         return AIResult[TranscriptResult](

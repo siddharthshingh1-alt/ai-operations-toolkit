@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Badge, Card, CardHeader, StatusDot } from "@aiops/ui";
 import { API_URL, tryGetReadiness, tryGetSystemInfo } from "@/lib/api";
 import { projectsByPhase } from "@/lib/projects";
@@ -22,6 +23,28 @@ export default async function DashboardPage() {
           build order below.
         </p>
       </header>
+
+      {/* First-time orientation. Stated here as well as on the guide because a
+          visitor who never opens the guide should still know what they are
+          using and what it costs. */}
+      {system && !system.demo_mode ? (
+        <div className="rounded-lg border border-slate-200 bg-slate-50 px-5 py-4 text-sm dark:border-slate-800 dark:bg-slate-800/40">
+          <p className="text-slate-700 dark:text-slate-300">
+            <strong>The AI here runs live.</strong> Ask it your own questions —
+            nothing is replayed. It runs on free-tier infrastructure with a
+            limit of roughly 20 AI requests a day across all visitors, which is
+            a deliberate cost choice: if the day&rsquo;s budget runs out the
+            site says so plainly rather than pretending otherwise.
+          </p>
+          <p className="mt-2 text-slate-500 dark:text-slate-400">
+            New here?{" "}
+            <Link href="/guide" className="underline underline-offset-2">
+              Start here
+            </Link>{" "}
+            — a five-minute walkthrough.
+          </p>
+        </div>
+      ) : null}
 
       {/* ---- system status ------------------------------------------------ */}
       <Card>

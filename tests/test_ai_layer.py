@@ -7,7 +7,9 @@ The important case here is the one Section 2 cares about: Demo Mode must
 from __future__ import annotations
 
 import json
+import time
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
@@ -26,7 +28,7 @@ from aiops_ai.base import AIProvider
 from aiops_ai.providers.demo import RecordingProvider, cache_key
 from aiops_ai.types import TranscriptResult
 from aiops_config import Settings
-from aiops_utils import AIProviderError
+from aiops_utils import AIProviderError, AIQuotaExhausted, provider_http_error
 
 # ------------------------------------------------------------------ pricing
 
@@ -193,6 +195,92 @@ def test_recording_can_be_forced_to_refresh(temp_cache_dir: Path) -> None:
 
     assert inner.calls == 2
     assert forced.reused == 0
+
+
+@pytest.mark.parametrize(
+    "message",
+    [
+        "429 RESOURCE_EXHAUSTED. You exceeded your current quota.",
+        "Quota exceeded for quota metric 'Generate requests'",
+        "rate limit reached for model",
+        "Too Many Requests",
+    ],
+)
+def test_gemini_quota_errors_are_named_as_such(monkeypatch: Any, message: str) -> None:
+    """A spent quota must not be reported as a generic provider failure.
+
+    The public demo runs live on a free tier, so this is the expected end of a
+    day's budget rather than a fault, and a visitor needs to be told that
+    waiting until tomorrow is what fixes it.
+    """
+    from aiops_ai.providers.gemini_provider import GeminiProvider
+
+    provider = GeminiProvider.__new__(GeminiProvider)
+    provider._settings = SimpleNamespace(ai_max_retries=2)  # type: ignore[assignment]
+
+    def _boom() -> None:
+        raise RuntimeError(message)
+
+    with pytest.raises(AIQuotaExhausted) as caught:
+        provider._with_retries(_boom, what="generation")
+
+    assert caught.value.status_code == 429
+    assert caught.value.code == "ai_quota_exhausted"
+    assert "free AI tier" in caught.value.user_message
+    assert "tomorrow" in caught.value.user_message
+
+
+def test_gemini_quota_error_is_not_retried(monkeypatch: Any) -> None:
+    """Retrying a spent quota only makes the visitor wait to hear the same thing."""
+    from aiops_ai.providers.gemini_provider import GeminiProvider
+
+    provider = GeminiProvider.__new__(GeminiProvider)
+    provider._settings = SimpleNamespace(ai_max_retries=3)  # type: ignore[assignment]
+
+    calls = 0
+
+    def _boom() -> None:
+        nonlocal calls
+        calls += 1
+        raise RuntimeError("429 RESOURCE_EXHAUSTED")
+
+    monkeypatch.setattr(time, "sleep", lambda _seconds: None)
+    with pytest.raises(AIQuotaExhausted):
+        provider._with_retries(_boom, what="generation")
+
+    assert calls == 1
+
+
+def test_a_transient_failure_is_still_retried(monkeypatch: Any) -> None:
+    """The quota check must not have swallowed the retry behaviour around it."""
+    from aiops_ai.providers.gemini_provider import GeminiProvider
+
+    provider = GeminiProvider.__new__(GeminiProvider)
+    provider._settings = SimpleNamespace(ai_max_retries=2)  # type: ignore[assignment]
+
+    calls = 0
+
+    def _flaky() -> str:
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            raise RuntimeError("connection reset by peer")
+        return "recovered"
+
+    monkeypatch.setattr(time, "sleep", lambda _seconds: None)
+    assert provider._with_retries(_flaky, what="generation") == "recovered"
+    assert calls == 2
+
+
+def test_a_429_from_other_providers_is_a_quota_error() -> None:
+    """Every provider treats a spent quota the same way."""
+    assert isinstance(provider_http_error("spent", status_code=429), AIQuotaExhausted)
+    quota = provider_http_error("spent", status_code=429)
+    assert quota.code == "ai_quota_exhausted"
+
+    other = provider_http_error("broken", status_code=500)
+    assert isinstance(other, AIProviderError)
+    assert not isinstance(other, AIQuotaExhausted)
 
 
 def test_cache_key_ignores_model_but_not_prompt() -> None:

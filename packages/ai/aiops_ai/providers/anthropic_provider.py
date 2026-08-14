@@ -23,6 +23,7 @@ from aiops_utils import (
     AIProviderTimeout,
     ConfigurationError,
     Stopwatch,
+    provider_http_error,
 )
 
 _NO_EMBEDDINGS = (
@@ -85,7 +86,9 @@ class AnthropicProvider(AIProvider):
         except anthropic.APITimeoutError as exc:
             raise AIProviderTimeout(f"Anthropic timed out: {exc}") from exc
         except anthropic.APIStatusError as exc:
-            raise AIProviderError(f"Anthropic returned {exc.status_code}: {exc}") from exc
+            raise provider_http_error(
+                f"Anthropic returned {exc.status_code}: {exc}", status_code=exc.status_code
+            ) from exc
         except anthropic.APIConnectionError as exc:
             raise AIProviderError(f"Could not reach Anthropic: {exc}") from exc
 

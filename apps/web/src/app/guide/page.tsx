@@ -15,12 +15,13 @@ import { tryGetSystemInfo } from "@/lib/api";
  */
 
 /**
- * The questions with recorded answers.
+ * Starting points for a visitor who does not know the library yet.
  *
- * Source of truth is `scripts/record_demo_outputs.py`; this list is repeated
- * here so a visitor can copy one. If you add a question there, add it here.
+ * Not a required list — the deployment runs live AI, so any question works.
+ * These are the questions the recorded fallback also covers, so they behave
+ * identically in Demo Mode.
  */
-const RECORDED_QUESTIONS = [
+const EXAMPLE_QUESTIONS = [
   "How quickly must we contact agents after a flight delay?",
   "What do we do if a hotel overbooks a confirmed room?",
   "What are the steps to onboard a new travel agency?",
@@ -121,55 +122,60 @@ export default async function GuidePage() {
         <div className="space-y-4 px-5 py-4 text-sm text-slate-600 dark:text-slate-400">
           <div>
             <h3 className="text-sm font-medium text-slate-900 dark:text-slate-100">
-              Demo Mode — what you are in by default
+              Live AI — what you are in by default
             </h3>
             <p className="mt-1">
-              Every AI output you see was <strong>really produced by a real
-              model</strong>, once, and saved. Demo Mode replays those
-              recordings
-              {system ? <> — there are {system.demo_recordings} of them</> : null}
-              . It is not a simulation and nothing here was hand-written to look
-              like AI output.
+              Ask it anything you like. Your question goes to a real model and
+              comes back with a real answer, generated for you, now. Nothing on
+              this site is replayed from a script and nothing is hand-written to
+              look like AI output.
             </p>
             <p className="mt-2">
-              <strong>The limitation:</strong> a recording exists only for the
-              example SOPs and the sample questions below. Type your own
-              question and you will get an honest{" "}
-              <em>&ldquo;no recording for this&rdquo;</em> rather than an answer.
+              <strong>What this costs, stated plainly:</strong> it runs on a
+              free tier, which allows roughly{" "}
+              <strong>20 AI requests a day</strong> across everyone using the
+              site. That is a deliberate choice rather than an oversight — a
+              paid tier would remove the limit, and showing a real system that
+              occasionally runs out is more honest than showing a canned one
+              that never does. If the day&rsquo;s budget is gone you will get a
+              clear message saying so, not a broken page. Try again tomorrow.
             </p>
             <p className="mt-2">
-              That is a deliberate trade, and the reasoning is the point: this
-              site is public, so a live AI key sitting on the server would be a
-              key that can leak and a free-tier quota any visitor could exhaust
-              in a few minutes. Recording real outputs once removes both risks
-              without ever showing you something a model did not actually say.
-              The alternative — generating plausible-looking text and calling it
-              AI output — would make every other claim on this site worthless.
+              The AI key lives on the server and is never sent to your browser.
+              You are not asked for one, and nothing you type is billed to you.
             </p>
           </div>
 
           <div className="border-t border-slate-200 pt-4 dark:border-slate-800">
             <h3 className="text-sm font-medium text-slate-900 dark:text-slate-100">
-              Running it live — if you want to verify it is real
+              Demo Mode — the fallback, and how this is tested
             </h3>
             <p className="mt-1">
-              A reviewer who suspects the whole thing is canned can run it
-              against a live model instead: clone the repository, put your own
-              provider key in <code className="rounded bg-slate-100 px-1.5 py-0.5 text-xs dark:bg-slate-800">.env</code>,
-              set <code className="rounded bg-slate-100 px-1.5 py-0.5 text-xs dark:bg-slate-800">DEMO_MODE=false</code>,
-              and every feature runs live on <strong>any</strong> question or
-              SOP you like, with nothing replayed. The{" "}
+              The repository also carries{" "}
+              {system && system.demo_recordings > 0 ? (
+                <>{system.demo_recordings} recorded AI outputs</>
+              ) : (
+                <>a set of recorded AI outputs</>
+              )}
+              : real responses a real model really produced, saved to disk.
+              Setting{" "}
+              <code className="rounded bg-slate-100 px-1.5 py-0.5 text-xs dark:bg-slate-800">
+                DEMO_MODE=true
+              </code>{" "}
+              replays those instead of calling the model, which is how local
+              development and the automated tests run — no key required and no
+              quota spent to run the test suite.
+            </p>
+            <p className="mt-2">
+              It matters that this is a <em>recording</em> and not a
+              <em> simulation</em>. Replaying an output a model genuinely
+              produced is honest; inventing a plausible-looking one and calling
+              it AI output would make every other claim on this site worthless.
+              The{" "}
               <Link href="/settings" className="underline underline-offset-2">
                 Settings
               </Link>{" "}
-              page shows which mode is active.
-            </p>
-            <p className="mt-2">
-              <strong>Being straight about this one:</strong> that currently
-              requires running it yourself. Pasting a key into this hosted site
-              is not implemented yet — the intended design is that a key you
-              supply is used for your session and never stored, and until that
-              is actually built, this page will not claim otherwise.
+              page always shows which mode you are in.
             </p>
           </div>
         </div>
@@ -201,10 +207,13 @@ export default async function GuidePage() {
 
           <Step n={2} title="Ask a question and check the citation">
             <p>
-              On the same page, use <strong>Ask</strong>. In Demo Mode, use one
-              of the recorded questions:
+              On the same page, use <strong>Ask</strong>.{" "}
+              <strong>Type your own question</strong> — anything the SOP you
+              just read would plausibly answer. It goes to a live model, so it
+              does not have to be one of ours. If you would rather start from a
+              known-good one:
             </p>
-            {RECORDED_QUESTIONS.map((q) => (
+            {EXAMPLE_QUESTIONS.map((q) => (
               <Quote key={q}>{q}</Quote>
             ))}
             <p>
@@ -227,10 +236,9 @@ export default async function GuidePage() {
               answer is ever requested.
             </p>
             <p>
-              If you instead see a message about a missing demo recording, that
-              is the Demo Mode limitation above showing through rather than the
-              refusal behaviour — running it live, as described above,
-              demonstrates it properly.
+              Pick your own unrelated question if you prefer — the behaviour is
+              not specific to printers, and the model is answering live, so
+              there is nothing prepared here to fall back on.
             </p>
           </Step>
 
@@ -277,7 +285,7 @@ export default async function GuidePage() {
             },
             {
               term: "Cost is measured, not assumed",
-              def: "Every AI call logs its model, duration, token count and estimated cost. An operations role that introduces AI without tracking what it spends has moved the problem, not solved it. Recording demo outputs once, instead of paying per visitor, is the same decision applied to this site.",
+              def: "Every AI call logs its model, duration, token count and estimated cost. An operations role that introduces AI without tracking what it spends has moved the problem, not solved it. Running this demo on a free tier with a visible daily ceiling — rather than hiding the cost question behind pre-recorded answers — is the same decision applied to this site.",
             },
             {
               term: "Nothing secret reaches your browser",

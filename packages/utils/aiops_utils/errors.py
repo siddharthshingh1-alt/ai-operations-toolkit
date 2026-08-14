@@ -69,3 +69,33 @@ class AIProviderTimeout(AIProviderError):
     status_code = 504
     code = "ai_provider_timeout"
     default_user_message = "The AI service took too long to respond. Please try again."
+
+
+class AIQuotaExhausted(AIProviderError):
+    """The provider's quota or rate limit is spent.
+
+    Separated from `AIProviderError` because it is not a fault: the public demo
+    runs live AI on a free tier deliberately, so reaching the daily limit is a
+    documented, expected end state. Presenting it as "the AI service could not
+    complete this request" would describe a healthy system as a broken one, and
+    would leave a visitor with no idea whether waiting helps.
+    """
+
+    status_code = 429
+    code = "ai_quota_exhausted"
+    default_user_message = (
+        "This demo runs on a free AI tier (about 20 requests a day). Today's "
+        "limit has been reached — please try again tomorrow."
+    )
+
+
+def provider_http_error(detail: str, *, status_code: int | None) -> AIProviderError:
+    """The right error for a failed provider HTTP call.
+
+    Exists so every provider treats a 429 the same way. Gemini's SDK does not
+    expose a status code reliably and is handled in that provider; the OpenAI
+    and Anthropic SDKs both do, and both route through here.
+    """
+    if status_code == 429:
+        return AIQuotaExhausted(detail)
+    return AIProviderError(detail)
