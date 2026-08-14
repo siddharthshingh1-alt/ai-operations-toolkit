@@ -103,15 +103,28 @@ def get_db() -> Iterator[Session]:
         yield session
 
 
-def ping(settings: Settings | None = None) -> bool:
-    """True when the database answers a trivial query. Used by /health."""
+def connection_error(settings: Settings | None = None) -> str | None:
+    """Return the reason the database is unreachable, or None if it is fine.
+
+    A boolean was not enough: a deployment reporting only "did not respond"
+    gives an operator nothing to act on, and the connection URL cannot be
+    shown because it contains the password. Returning the driver's message
+    lets the health endpoint translate it into a specific hint.
+    """
     try:
         with get_engine(settings).connect() as connection:
             connection.execute(text("SELECT 1"))
-        return True
+        return None
     except Exception as exc:  # noqa: BLE001 — health checks must never raise
-        logger.warning("database ping failed", extra={"error": str(exc)})
-        return False
+        # The driver sometimes includes the DSN; keep it out of the response.
+        message = str(exc).splitlines()[0] if str(exc) else repr(exc)
+        logger.warning("database ping failed", extra={"error": message[:300]})
+        return message
+
+
+def ping(settings: Settings | None = None) -> bool:
+    """True when the database answers a trivial query."""
+    return connection_error(settings) is None
 
 
 def reset_connection_cache() -> None:

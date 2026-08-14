@@ -20,7 +20,7 @@ from pydantic import BaseModel, Field
 
 from aiops_ai import DemoProvider, known_models
 from aiops_config import Settings, get_settings
-from aiops_db import has_pgvector, ping
+from aiops_db import connection_error, has_pgvector
 from aiops_docproc import PdfExporter, available_formats
 from aiops_utils import utcnow
 
@@ -65,6 +65,41 @@ class SystemInfoResponse(BaseModel):
     priced_models: list[str]
 
 
+#: Maps a connection failure to something actionable. Deliberately keyed on
+#: substrings of the driver's message rather than on exception types, because
+#: psycopg reports most of these as the same OperationalError.
+_DB_HINTS: list[tuple[tuple[str, ...], str]] = [
+    (
+        ("password authentication failed", "authentication failed"),
+        "The username or password is wrong. On Supabase's session pooler the "
+        "username includes the project ref, e.g. 'postgres.abcdefgh' — not "
+        "plain 'postgres'.",
+    ),
+    (
+        ("could not translate host name", "name or service not known", "getaddrinfo"),
+        "The hostname does not resolve. Check it for typos.",
+    ),
+    (
+        ("timeout", "timed out"),
+        "The host did not answer. If the host is 'db.<ref>.supabase.co' that is "
+        "the direct connection, which is IPv6-only and unreachable from most "
+        "cloud hosts — use the session pooler instead.",
+    ),
+    (
+        ("connection refused",),
+        "The host answered but refused the port. Check the port number.",
+    ),
+    (
+        ("does not exist",),
+        "The database or role named in the URL does not exist.",
+    ),
+    (
+        ("ssl", "certificate"),
+        "TLS negotiation failed. Supabase requires SSL; do not disable it.",
+    ),
+]
+
+
 def _database_check(settings: Settings) -> Check:
     if not settings.database_configured:
         return Check(
@@ -72,14 +107,24 @@ def _database_check(settings: Settings) -> Check:
             status="not_configured",
             detail="No DATABASE_URL set. Demo Mode does not require one.",
         )
-    if not ping(settings):
-        return Check(
-            name="database",
-            status="unavailable",
-            detail="DATABASE_URL is set but the database did not respond.",
-        )
-    vector = "with pgvector" if has_pgvector(settings) else "without pgvector"
-    return Check(name="database", status="ok", detail=f"Connected {vector}.")
+
+    error = connection_error(settings)
+    if error is None:
+        vector = "with pgvector" if has_pgvector(settings) else "without pgvector"
+        return Check(name="database", status="ok", detail=f"Connected {vector}.")
+
+    # Report *why* it failed, not just that it did — but never echo the URL,
+    # which contains the password.
+    lowered = error.lower()
+    for markers, hint in _DB_HINTS:
+        if any(marker in lowered for marker in markers):
+            return Check(name="database", status="unavailable", detail=hint)
+
+    return Check(
+        name="database",
+        status="unavailable",
+        detail="The database did not respond. Check the service logs for the driver error.",
+    )
 
 
 def _ai_check(settings: Settings) -> Check:
