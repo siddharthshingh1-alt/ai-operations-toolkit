@@ -13,6 +13,15 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1
 
+# Where the application should look for repo-relative files.
+#
+# Stated explicitly because auto-detection cannot work in an image: it looks
+# for requirements.txt, package.json and pyproject.toml together, and this
+# image copies only the first. Without this the detector falls through to the
+# working directory, and every repo-relative path — the Demo Mode recordings
+# among them — silently points at apps/api instead of /repo.
+ENV AIOPS_REPO_ROOT=/repo
+
 # WeasyPrint renders PDFs through Pango, which is a system library rather than
 # a Python one — this is exactly what is missing on a stock Windows machine and
 # why PDF export does not work locally. Installing it here is what makes PDF
@@ -55,6 +64,21 @@ COPY data ./data
 # The synthetic datasets are reproducible from the generator and gitignored, so
 # they are produced at build time rather than shipped in the repository.
 RUN python scripts/generate_demo_data.py
+
+# Fail the build if the image cannot actually see what it needs at runtime.
+#
+# This exists because the opposite happened: an image shipped with the Demo
+# Mode recordings present but unreachable, and the only symptom was the app
+# quietly reporting zero of them in production. A build that is wrong should
+# not produce a running service.
+RUN python -c "\
+from aiops_config import demo_cache_dir, repo_root; \
+import sys; \
+root = repo_root(); \
+cache = demo_cache_dir(); \
+found = len(list(cache.glob('*.json'))) if cache.is_dir() else 0; \
+print(f'repo_root={root}  demo_cache={cache}  recordings={found}'); \
+sys.exit(0 if str(root) == '/repo' and found > 0 else 1)"
 
 # Run as a non-root user.
 RUN useradd --create-home --uid 10001 appuser && chown -R appuser /repo
