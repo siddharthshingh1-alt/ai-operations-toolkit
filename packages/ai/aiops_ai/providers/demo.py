@@ -20,7 +20,7 @@ import hashlib
 import json
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from aiops_ai.base import AIProvider
 from aiops_ai.types import AIResult, TranscriptResult, Usage
@@ -135,12 +135,48 @@ class RecordingProvider(AIProvider):
     """Wraps a live provider and saves every real response as a recording.
 
     Used only by `scripts/record_demo_outputs.py` — never in the running app.
+
+    By default an existing recording is reused rather than re-requested. The
+    recording script is re-run whenever a new example is added, and the free
+    tiers this project targets are quota-limited (Gemini allows 20 requests a
+    day) — so re-recording nine unchanged outputs to add a tenth is most of a
+    day's budget spent on work already done. Pass ``reuse_existing=False`` to
+    force fresh calls, which is what you want if a prompt has changed.
     """
 
-    def __init__(self, inner: AIProvider, cache_dir: Path | None = None) -> None:
+    def __init__(
+        self,
+        inner: AIProvider,
+        cache_dir: Path | None = None,
+        *,
+        reuse_existing: bool = True,
+    ) -> None:
         self._inner = inner
         self._cache_dir = cache_dir or demo_cache_dir()
+        self._reuse_existing = reuse_existing
         self.name = inner.name
+        #: Recordings reused rather than re-requested, for the script's summary.
+        self.reused = 0
+
+    def _existing(self, operation: str, prompt: str, system: str | None) -> AIResult[Any] | None:
+        """The stored result for this request, if one is already on disk."""
+        if not self._reuse_existing:
+            return None
+        path = self._path(cache_key(operation, prompt, system))
+        if not path.is_file():
+            return None
+
+        record = json.loads(path.read_text(encoding="utf-8"))
+        self.reused += 1
+        logger.info("reusing existing recording", extra={"operation": operation})
+        return AIResult[Any](
+            value=record["value"],
+            provider=record.get("recorded_provider", "unknown"),
+            model=record.get("recorded_model", "unknown"),
+            duration_ms=record.get("duration_ms", 0),
+            usage=Usage(**record.get("usage", {})),
+            from_demo_cache=True,
+        )
 
     def _save(self, operation: str, prompt: str, system: str | None, result: AIResult[Any]) -> None:
         self._cache_dir.mkdir(parents=True, exist_ok=True)
@@ -179,6 +215,10 @@ class RecordingProvider(AIProvider):
         model: str | None = None,
         max_tokens: int | None = None,
     ) -> AIResult[str]:
+        existing = self._existing("complete_text", prompt, system)
+        if existing is not None:
+            return cast("AIResult[str]", existing)
+
         result = self._inner._complete_text(
             prompt, system=system, model=model, max_tokens=max_tokens
         )
@@ -194,6 +234,10 @@ class RecordingProvider(AIProvider):
         model: str | None = None,
         max_tokens: int | None = None,
     ) -> AIResult[dict[str, Any]]:
+        existing = self._existing("complete_json", prompt, system)
+        if existing is not None:
+            return cast("AIResult[dict[str, Any]]", existing)
+
         result = self._inner._complete_json(
             prompt, schema=schema, system=system, model=model, max_tokens=max_tokens
         )
@@ -201,11 +245,20 @@ class RecordingProvider(AIProvider):
         return result
 
     def generate_embeddings(self, texts: list[str]) -> AIResult[list[list[float]]]:
+        prompt = json.dumps(texts, sort_keys=True)
+        existing = self._existing("embeddings", prompt, None)
+        if existing is not None:
+            return cast("AIResult[list[list[float]]]", existing)
+
         result = self._inner.generate_embeddings(texts)
-        self._save("embeddings", json.dumps(texts, sort_keys=True), None, result)
+        self._save("embeddings", prompt, None, result)
         return result
 
     def transcribe(self, audio_path: str | Path) -> AIResult[TranscriptResult]:
+        existing = self._existing("transcribe", Path(audio_path).name, None)
+        if existing is not None:
+            return cast("AIResult[TranscriptResult]", existing)
+
         result = self._inner.transcribe(audio_path)
         self._save("transcribe", Path(audio_path).name, None, result)
         return result

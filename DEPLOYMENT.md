@@ -181,7 +181,7 @@ Open your Vercel URL and click **Documents**.
 | Header badge | *"Demo Mode — replaying 12 recorded AI outputs"* |
 | SOP library | at least the 3 seeded SOPs (the database is shared and public, so anything created through the live site is also listed) |
 | Ask a question | *"What do we do if a hotel overbooks a confirmed room?"* → answer with sources |
-| Ask something unrelated | *"How do I fix the office printer?"* → honest "no SOP covers this" |
+| Ask something unrelated | *"How do I fix the office printer?"* → honest "no SOP covers this", **provided that question's embedding has been recorded**; without it Demo Mode reports a missing recording instead, which is the demo's limit rather than the product's behaviour |
 | Generate | **New SOP** → click an example button → **Generate SOP** |
 | **PDF export** | Open any SOP → **PDF** → downloads a real PDF |
 

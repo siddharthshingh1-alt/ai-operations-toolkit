@@ -4,8 +4,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@aiops/ui";
 
-/** The sidebar layout named in CLAUDE.md Section 21. */
+/**
+ * The sidebar layout named in CLAUDE.md Section 21.
+ *
+ * "Start here" is not in that list. It is first anyway: the deployed site is
+ * read by people with no context and no intention of reading a README, and a
+ * demo nobody knows how to evaluate is a demo that does not count.
+ */
 const NAV = [
+  { href: "/guide", label: "Start here" },
   { href: "/", label: "Dashboard" },
   { href: "/projects", label: "Projects" },
   { href: "/workflows", label: "Workflows" },

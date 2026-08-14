@@ -166,8 +166,11 @@ Worth clicking specifically:
   feature the deployment has and local development does not.
 - **Ask** *"What do we do if a hotel overbooks a confirmed room?"* — answered
   with the source SOPs shown.
-- **Ask** *"How do I fix the office printer?"* — answered with an honest "no SOP
-  covers this" rather than an invention.
+- **Ask** *"How do I fix the office printer?"* — the relevance floor rejects it
+  and the AI is never called, so the answer is an honest "no SOP covers this"
+  rather than an invention. *(Demo Mode replays recorded outputs, so this
+  demonstrates the refusal only once that question's embedding has been
+  recorded — otherwise it reports a missing recording instead.)*
 
 > The API sleeps after 15 minutes idle, so the first load can take up to a
 > minute while it wakes.

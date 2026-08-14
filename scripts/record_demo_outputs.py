@@ -33,10 +33,20 @@ sys.path.insert(0, str(Path(__file__).parent))
 from demo_examples import EXAMPLES  # noqa: E402
 
 #: Questions recorded so the "Ask your SOPs" panel works in Demo Mode.
+#:
+#: The last one is deliberately unanswerable. Refusing to answer a question the
+#: library does not cover is a designed behaviour, not an error — and it was
+#: not demonstrable in Demo Mode, because the *question embedding* had never
+#: been recorded, so the request failed before the relevance floor could reject
+#: it. A visitor saw "no demo recording" (a limitation of the demo) instead of
+#: "no SOP covers this" (the product working). Recording it costs one embedding
+#: and no generation at all: the floor rejects the question before any answer
+#: is requested.
 QUESTIONS = [
     "How quickly must we contact agents after a flight delay?",
     "What do we do if a hotel overbooks a confirmed room?",
     "What are the steps to onboard a new travel agency?",
+    "How do I fix the office printer?",
 ]
 
 OWNERS = ["Anita Rao", "Deepak Menon", "Sana Qureshi"]
@@ -141,7 +151,9 @@ def main() -> int:
         print("Re-run to retry them; recording is idempotent.")
 
     recordings = len(list(demo_cache_dir().glob("*.json")))
+    reused = provider.reused + embedder.reused
     print(f"\nDone. {recordings} recording(s) on disk, {seeded} SOP(s) seeded.")
+    print(f"Reused {reused} existing recording(s) — no API call was made for those.")
     print(f"Estimated cost of this run: ${total_cost:.4f}")
     print("\nSet DEMO_MODE=true in .env to replay these with no API key.")
     return 0

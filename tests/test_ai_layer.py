@@ -133,6 +133,68 @@ def test_recording_round_trips(temp_cache_dir: Path) -> None:
     assert replayed.from_demo_cache is True
 
 
+class _CountingStub(AIProvider):
+    """Counts how many times the live provider was actually asked."""
+
+    name = "counting-stub"
+
+    def __init__(self) -> None:
+        self.calls = 0
+
+    def _complete_text(self, prompt: str, **kwargs: Any) -> AIResult[str]:
+        self.calls += 1
+        return AIResult[str](
+            value=f"answer {self.calls}",
+            provider="stub",
+            model="stub-model",
+            duration_ms=1,
+            usage=Usage(input_tokens=1, output_tokens=1),
+        )
+
+    def _complete_json(self, prompt: str, **kwargs: Any) -> AIResult[dict[str, Any]]:
+        raise NotImplementedError
+
+    def generate_embeddings(self, texts: list[str]) -> AIResult[list[list[float]]]:
+        raise NotImplementedError
+
+    def transcribe(self, audio_path: Any) -> AIResult[TranscriptResult]:
+        raise NotImplementedError
+
+
+def test_recording_reuses_an_existing_recording(temp_cache_dir: Path) -> None:
+    """Re-running the recorder must not re-spend quota on unchanged prompts.
+
+    The free tiers this targets allow 20 requests a day, and the script is
+    re-run whenever one example is added.
+    """
+    inner = _CountingStub()
+    recorder = RecordingProvider(inner, cache_dir=temp_cache_dir)
+
+    first = recorder.generate_text("a question")
+    second = recorder.generate_text("a question")
+
+    assert inner.calls == 1, "the second call should have been served from disk"
+    assert second.value == first.value
+    assert second.from_demo_cache is True
+    assert recorder.reused == 1
+
+    # A prompt with no recording still reaches the live provider.
+    recorder.generate_text("a different question")
+    assert inner.calls == 2
+
+
+def test_recording_can_be_forced_to_refresh(temp_cache_dir: Path) -> None:
+    """A changed prompt template needs its recordings genuinely re-made."""
+    inner = _CountingStub()
+    RecordingProvider(inner, cache_dir=temp_cache_dir).generate_text("a question")
+
+    forced = RecordingProvider(inner, cache_dir=temp_cache_dir, reuse_existing=False)
+    forced.generate_text("a question")
+
+    assert inner.calls == 2
+    assert forced.reused == 0
+
+
 def test_cache_key_ignores_model_but_not_prompt() -> None:
     """Recordings survive a model change; a different prompt is a different key."""
     assert cache_key("op", "prompt", None) == cache_key("op", "prompt", None)
