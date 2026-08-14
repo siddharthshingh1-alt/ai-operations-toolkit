@@ -10,8 +10,19 @@ import type { ReadinessResponse, SystemInfo } from "@aiops/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
-/** How long to wait before treating the backend as unreachable. */
-const TIMEOUT_MS = 5_000;
+/**
+ * How long to wait before treating the backend as unreachable.
+ *
+ * Generous on purpose. The deployed API runs on a free tier that sleeps after
+ * 15 minutes of inactivity and takes 30-60 seconds to wake up, so the first
+ * visitor after a quiet period pays a cold start. A short timeout turns that
+ * into a dashboard reporting "API unreachable" while the API is in fact
+ * healthy and two seconds from answering — the wrong answer, shown fast.
+ *
+ * Waiting is safe here: these calls run in server components, and Vercel's
+ * Hobby plan allows 300s per function invocation.
+ */
+const TIMEOUT_MS = 45_000;
 
 export class ApiUnreachableError extends Error {
   constructor(readonly path: string, readonly cause_: unknown) {

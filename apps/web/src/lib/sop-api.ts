@@ -40,7 +40,11 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   } catch {
     throw new SopApiError(
       "unreachable",
-      "Could not reach the API. Start it with `npm run dev`.",
+      // Deployed, the likeliest cause is a free-tier cold start, so tell a
+      // visitor to retry rather than showing them a local-dev instruction.
+      process.env.NODE_ENV === "production"
+        ? "Could not reach the API. It may be waking up from idle — retry in a moment."
+        : "Could not reach the API. Start it with `npm run dev`.",
       0,
     );
   }
