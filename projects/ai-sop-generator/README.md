@@ -153,9 +153,24 @@ Then open **http://localhost:3000/documents**.
 
 ## Live Demo
 
-Not yet deployed. Deployment (Vercel + Railway/Render + Supabase) is the next
-non-project task — CLAUDE.md Section 3a treats a live URL as non-optional, and
-this README will carry the link once it exists.
+**https://ai-operations-toolkit-web.vercel.app/documents**
+
+No sign-up and no API key: the deployment runs in Demo Mode, replaying 12 real
+recorded AI responses. Web app on Vercel, API on Render, Postgres + pgvector on
+Supabase.
+
+Worth clicking specifically:
+
+- **PDF export** on any SOP — WeasyPrint's native libraries are present in the
+  deployed container but not on a stock Windows machine, so this is the one
+  feature the deployment has and local development does not.
+- **Ask** *"What do we do if a hotel overbooks a confirmed room?"* — answered
+  with the source SOPs shown.
+- **Ask** *"How do I fix the office printer?"* — answered with an honest "no SOP
+  covers this" rather than an invention.
+
+> The API sleeps after 15 minutes idle, so the first load can take up to a
+> minute while it wakes.
 
 ## Example
 

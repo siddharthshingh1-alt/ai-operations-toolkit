@@ -11,9 +11,20 @@ This is not a general AI showcase. Every project maps to a stated requirement of
 the role it targets, and anything that could not be justified against that was
 cut or merged rather than kept for volume. The reasoning is on the record below.
 
-> **Current state: Project 1 shipped.** The foundation and the AI SOP Generator
-> are built, tested, and running. The other eight projects are not implemented
-> yet — the UI says so, and this README will not claim otherwise until they are.
+> **Current state: Project 1 shipped and deployed.** The foundation and the AI
+> SOP Generator are built, tested, and running on a public URL. The other eight
+> projects are not implemented yet — the UI says so, and this README will not
+> claim otherwise until they are.
+
+## ▶ Live demo
+
+**https://ai-operations-toolkit-web.vercel.app**
+
+No sign-up, no API key. It runs in Demo Mode, replaying 12 *real* recorded AI
+responses rather than simulated ones (see [The two modes](#the-two-modes) below).
+
+> The API is on a free tier that sleeps after 15 minutes idle, so **the first
+> load can take up to a minute** while it wakes. It is fast afterwards.
 
 ---
 
@@ -21,7 +32,7 @@ cut or merged rather than kept for volume. The reasoning is on the record below.
 
 | # | Project | JD requirement it proves | AI capability | Business impact | Live demo |
 |---|---------|--------------------------|---------------|-----------------|-----------|
-| 1 | **AI SOP Generator** | Document and standardize scalable operational processes | Structured generation + citation-backed semantic search (pgvector) | ~120 hrs/yr* | [code](projects/ai-sop-generator/) · not yet deployed |
+| 1 | **AI SOP Generator** | Document and standardize scalable operational processes | Structured generation + citation-backed semantic search (pgvector) | ~120 hrs/yr* | [live](https://ai-operations-toolkit-web.vercel.app/documents) · [code](projects/ai-sop-generator/) |
 | 2 | AI Operations Dashboard | Build dashboards; analyze operational data | Insight layer over deterministic trend/anomaly detection | TBM | planned |
 | 3 | **AI Travel Operations** (flagship) | Identify operational bottlenecks and solve them using AI | Incident classification, affected-booking lookup, drafted agent comms | TBM | planned |
 | 4 | AI Workflow Builder | Build AI-assisted workflows and automations | AI nodes inside a visual workflow editor | TBM | planned |
