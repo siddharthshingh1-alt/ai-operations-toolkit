@@ -53,6 +53,24 @@ class NotFoundError(AIOpsError):
     default_user_message = "That item could not be found."
 
 
+class DatabaseUnavailable(AIOpsError):
+    """The database could not be reached.
+
+    Separate from `ConfigurationError` because nothing is misconfigured: the
+    settings are fine and the database is simply not answering. Separate from a
+    generic 500 because "something went wrong" tells an operator nothing and a
+    visitor even less — and because the parts of this toolkit that need no
+    database keep working, so the failure is partial rather than total.
+    """
+
+    status_code = 503
+    code = "database_unavailable"
+    default_user_message = (
+        "The database is temporarily unavailable, so saved data cannot be read "
+        "or written right now. Features that do not need it still work."
+    )
+
+
 class AIProviderError(AIOpsError):
     """The AI provider returned an error or an unusable response."""
 

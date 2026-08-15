@@ -64,3 +64,4 @@ apps/web/AGENTS.md
 Thumbs.db
 desktop.ini
 *.swp
+.env.backup-before-pooler

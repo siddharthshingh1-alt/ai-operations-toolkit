@@ -31,6 +31,17 @@ logger = get_logger(__name__)
 _ENGINES: dict[str, Engine] = {}
 _SESSION_FACTORIES: dict[str, sessionmaker[Session]] = {}
 
+#: How long a single connection attempt may take before giving up.
+#:
+#: libpq's default is no timeout at all, which on an unreachable host means the
+#: OS decides — observed here as roughly two minutes. That is worse than a
+#: failure: application startup hung, and each request needing a database held
+#: a worker for the whole wait before returning the same error it could have
+#: returned immediately. Ten seconds is far above any healthy connection
+#: (production connects in well under one) and far below a timeout a person
+#: would sit through.
+CONNECT_TIMEOUT_SECONDS = 10
+
 
 def _require_url(settings: Settings | None) -> tuple[Settings, str]:
     settings = settings or get_settings()
@@ -57,6 +68,7 @@ def get_engine(settings: Settings | None = None) -> Engine:
             pool_size=5,
             max_overflow=10,
             echo=False,
+            connect_args={"connect_timeout": CONNECT_TIMEOUT_SECONDS},
         )
     return _ENGINES[url]
 

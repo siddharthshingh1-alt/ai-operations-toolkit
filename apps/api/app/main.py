@@ -43,10 +43,31 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     )
 
     # Optional convenience for local development only. Production uses Alembic.
+    #
+    # A failure here must not stop the application. Most of this toolkit needs
+    # no database at all — the Operations Dashboard analyses an uploaded file
+    # end to end without touching one — so letting an unreachable database
+    # abort startup takes down a great deal that would otherwise work, in
+    # exchange for nothing. The health endpoint reports the real state, and the
+    # routes that genuinely need a database return a 503 saying so.
     if settings.database_configured and settings.db_auto_create:
+        from sqlalchemy.exc import SQLAlchemyError
+
         from aiops_db import create_all
 
-        create_all(settings)
+        try:
+            create_all(settings)
+        except (SQLAlchemyError, OSError) as exc:
+            logger.warning(
+                "could not prepare the database schema; starting without it",
+                extra={
+                    "error": str(exc).splitlines()[0][:200],
+                    "consequence": (
+                        "Endpoints that need the database will return 503. "
+                        "Everything else works normally."
+                    ),
+                },
+            )
 
     yield
     logger.info("api stopping")

@@ -20,9 +20,9 @@ from typing import Any
 
 import pandas as pd
 import pytest
-from fastapi.testclient import TestClient
 from aiops_dashboard import analyse, build_prompt, clear_cache, explain
 from aiops_dashboard.models import InsightReport
+from fastapi.testclient import TestClient
 
 from aiops_ai.base import AIProvider
 from aiops_ai.types import AIResult, TranscriptResult, Usage

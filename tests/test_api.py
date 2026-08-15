@@ -108,3 +108,90 @@ def test_domain_validation_error_maps_to_422() -> None:
         raise ValidationError("bad input")
 
     assert TestClient(app).get("/invalid").status_code == 422
+
+
+# ------------------------------------------------- degrading without a database
+
+
+def test_the_api_starts_when_the_database_is_unreachable(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """An unreachable database must not stop the application from starting.
+
+    Most of this toolkit needs no database — the Operations Dashboard analyses
+    an uploaded file end to end without one — so aborting startup would take
+    down a great deal that works, in exchange for nothing.
+    """
+    from sqlalchemy.exc import OperationalError as _OperationalError
+
+    import aiops_db
+    from aiops_config import Settings, get_settings
+
+    called = False
+
+    def _explode(settings: Settings | None = None) -> None:
+        nonlocal called
+        called = True
+        raise _OperationalError("SELECT 1", {}, Exception("connection timeout expired"))
+
+    monkeypatch.setattr(aiops_db, "create_all", _explode)
+
+    # Force the branch on. Without both of these the startup hook skips schema
+    # creation entirely and this test would pass without exercising anything.
+    settings = get_settings()
+    monkeypatch.setattr(settings, "db_auto_create", True)
+    monkeypatch.setattr(settings, "database_url", "postgresql://u:p@localhost:5432/db")
+    assert settings.database_configured
+
+    # Entering the client's context runs the lifespan. It must not raise.
+    with TestClient(create_app()) as started:
+        assert started.get("/health").status_code == 200
+
+    assert called, "the failing schema step never ran, so nothing was proved"
+
+
+def test_endpoints_that_need_no_database_still_work_without_one(
+    client: TestClient,
+) -> None:
+    """The dashboard's analysis path never touches the database."""
+    response = client.post(
+        "/api/dashboard/analyse",
+        files={
+            "file": (
+                "ops.csv",
+                b"date,value\n2026-01-01,1\n2026-01-02,2\n2026-01-03,9\n",
+                "text/csv",
+            )
+        },
+    )
+    assert response.status_code == 200
+    assert response.json()["row_count"] == 3
+
+
+def test_a_database_failure_is_a_retryable_503_not_a_generic_500(
+    client: TestClient,
+) -> None:
+    """A driver connection failure has one cause and one fix; say which.
+
+    'Something went wrong on our side' is true and useless. 503 also tells a
+    client the request is worth retrying, which 500 does not.
+    """
+    from sqlalchemy.exc import OperationalError as _OperationalError
+
+    from app.main import create_app as _create_app
+
+    app = _create_app()
+
+    @app.get("/boom-db")
+    def _boom() -> None:
+        raise _OperationalError("SELECT 1", {}, Exception("connection timeout expired"))
+
+    with TestClient(app, raise_server_exceptions=False) as probe:
+        response = probe.get("/boom-db")
+
+    assert response.status_code == 503
+    body = response.json()
+    assert body["code"] == "database_unavailable"
+    assert "still work" in body["message"]
+    assert "traceback" not in body["message"].lower()
+    assert set(body) == {"code", "message"}

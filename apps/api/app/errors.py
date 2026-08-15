@@ -10,8 +10,9 @@ from __future__ import annotations
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from sqlalchemy.exc import OperationalError
 
-from aiops_utils import AIOpsError, get_logger
+from aiops_utils import AIOpsError, DatabaseUnavailable, get_logger
 
 logger = get_logger(__name__)
 
@@ -53,6 +54,24 @@ def register_error_handlers(app: FastAPI) -> None:
                 ],
             },
         )
+
+    @app.exception_handler(OperationalError)
+    async def handle_database_unavailable(request: Request, exc: OperationalError) -> JSONResponse:
+        """The database did not answer.
+
+        Registered separately from the catch-all because "something went wrong
+        on our side" is true but useless here. A driver-level connection
+        failure has one cause a reader can act on and one thing that fixes it —
+        waiting, or an operator restoring the database — and the rest of the
+        toolkit is still working while it is down. Answering 503 also tells a
+        client this is retryable, which a 500 does not.
+        """
+        unavailable = DatabaseUnavailable(str(exc).splitlines()[0])
+        logger.warning(
+            "database unavailable",
+            extra={"path": request.url.path, "detail": unavailable.detail[:200]},
+        )
+        return JSONResponse(status_code=unavailable.status_code, content=unavailable.to_payload())
 
     @app.exception_handler(Exception)
     async def handle_unexpected_error(request: Request, exc: Exception) -> JSONResponse:
