@@ -117,6 +117,26 @@ class MockEmailProvider(EmailProvider):
         )
         return message_id
 
+    def send_message(self, *, recipient: str, subject: str, body: str, approved_by: str) -> str:
+        if not approved_by.strip():
+            raise ValidationError("A message cannot be sent without a human approver.")
+        if not recipient.strip():
+            raise ValidationError("A message needs a recipient.")
+
+        # Mock adapter: the send is recorded, never transmitted (Section 3c).
+        message_id = f"mock-recorded-{abs(hash((recipient, subject))) % 10**10}"
+        logger.info(
+            "mock email recorded (not sent)",
+            extra={
+                "recipient": recipient,
+                "approved_by": approved_by,
+                "subject_length": len(subject),
+                "body_length": len(body),
+                "transmitted": False,
+            },
+        )
+        return message_id
+
 
 class MockCalendarProvider(CalendarProvider):
     """Team calendar backed by `operations_calendar.csv`."""

@@ -340,3 +340,151 @@ export interface SampleDataset {
 export interface SampleListResponse {
   samples: SampleDataset[];
 }
+
+/* ------------------------------------------------------------------ *
+ * Project 6 — AI Travel Operations, the flagship (`/api/travel`)
+ *
+ * `CommunicationStatus` has no "sent". The deployment records an approved
+ * message and transmits nothing, and a status implying otherwise would be a
+ * lie told by a type.
+ * ------------------------------------------------------------------ */
+
+export type IncidentKind =
+  | "flight_delay"
+  | "flight_cancellation"
+  | "hotel_overbooking"
+  | "schedule_change"
+  | "other";
+
+export type Severity = "low" | "medium" | "high" | "critical";
+
+export type IncidentStatus =
+  | "open"
+  | "assessed"
+  | "awaiting_approval"
+  | "resolved";
+
+export type CommunicationStatus = "draft" | "approved" | "rejected";
+
+export interface AffectedBooking {
+  id: string;
+  agent_id: string;
+  agent_name: string;
+  traveller_name: string;
+  booking_type: string;
+  route: string | null;
+  supplier: string | null;
+  departure_at: string | null;
+  status: string;
+  value_inr: number;
+}
+
+export interface CommunicationView {
+  id: string;
+  agent_id: string;
+  agent_name: string;
+  booking_ids: string[];
+  subject: string;
+  body: string;
+  status: CommunicationStatus;
+  approved_by: string | null;
+  approved_at: string | null;
+  rejection_note: string | null;
+  recorded_message_id: string | null;
+}
+
+export interface IncidentSummary {
+  id: string;
+  kind: IncidentKind;
+  title: string;
+  route: string | null;
+  supplier: string | null;
+  occurred_at: string | null;
+  status: IncidentStatus;
+  severity: Severity | null;
+  affected_count: number;
+  affected_value_inr: number;
+  draft_count: number;
+  awaiting_approval_count: number;
+}
+
+export interface IncidentDetail {
+  id: string;
+  kind: IncidentKind;
+  title: string;
+  description: string;
+  route: string | null;
+  supplier: string | null;
+  occurred_at: string | null;
+  status: IncidentStatus;
+  severity: Severity | null;
+  severity_reasoning: string | null;
+  traveller_impact: string | null;
+  recommended_action: string | null;
+  affected_count: number;
+  affected_value_inr: number;
+  affected_bookings: AffectedBooking[];
+  communications: CommunicationView[];
+  execution: WorkflowExecutionView | null;
+  created_at: string;
+}
+
+/** The stored workflow run — the audit trail for one incident. */
+export interface WorkflowExecutionView {
+  id: string;
+  workflow_id: string;
+  status: "running" | "succeeded" | "failed" | "awaiting_approval";
+  node_runs: {
+    node_id: string;
+    node_type: string;
+    label: string;
+    status: string;
+    duration_ms: number;
+    output: Record<string, unknown>;
+    error: string | null;
+    ai_model: string | null;
+    estimated_cost_usd: number | null;
+  }[];
+  awaiting_node_id: string | null;
+  error: string | null;
+}
+
+export interface TravelUsageInfo {
+  model: string;
+  provider: string;
+  duration_ms: number;
+  input_tokens: number;
+  output_tokens: number;
+  estimated_cost_usd: number | null;
+  from_demo_cache: boolean;
+}
+
+export interface AssessResponse {
+  incident: IncidentDetail;
+  usage: TravelUsageInfo;
+}
+
+export interface IncidentListResponse {
+  incidents: IncidentSummary[];
+  seeded: number;
+}
+
+export interface AgentPartner {
+  agent_id: string;
+  agent_name: string;
+  booking_count: number;
+  total_value_inr: number;
+  confirmed: number;
+  delayed: number;
+  cancelled: number;
+  open_tickets: number;
+  urgent_tickets: number;
+  last_booking_at: string | null;
+  incidents_involved: number;
+  awaiting_approval: number;
+  next_follow_up: string | null;
+}
+
+export interface PartnerListResponse {
+  partners: AgentPartner[];
+}

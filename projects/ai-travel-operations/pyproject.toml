@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aiops-travelops"
+version = "0.1.0"
+description = "Project 6 — AI Travel Operations, the flagship, including the folded-in agent/partner module (CLAUDE.md Section 14)."
+requires-python = ">=3.12"
+dependencies = [
+    "aiops-config",
+    "aiops-utils",
+    "aiops-ai",
+    "aiops-db",
+    "aiops-adapters",
+    "aiops-workflow",
+    "pandas>=2.2",
+    "pydantic>=2.8",
+    "sqlalchemy>=2.0",
+    "fastapi>=0.115",
+]
+
+[tool.setuptools]
+packages = ["aiops_travelops"]

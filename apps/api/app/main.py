@@ -16,6 +16,7 @@ from contextlib import asynccontextmanager
 
 from aiops_dashboard.router import router as dashboard_router
 from aiops_sop.router import router as sop_router
+from aiops_travelops.router import router as travel_router
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -104,6 +105,7 @@ def create_app() -> FastAPI:
     # carries its own prefix.
     app.include_router(sop_router)  # Project 1 — AI SOP Generator
     app.include_router(dashboard_router)  # Project 3 — AI Operations Dashboard
+    app.include_router(travel_router)  # Project 6 — AI Travel Operations (flagship)
     return app
 
 

@@ -21,7 +21,7 @@ logger = get_logger(__name__)
 #: Project packages whose models add tables. Imported lazily by
 #: `_register_project_models` so this package never hard-depends on a project —
 #: the dependency direction stays one-way (see docs/architecture).
-_PROJECT_MODEL_MODULES = ("aiops_sop.models",)
+_PROJECT_MODEL_MODULES = ("aiops_sop.models", "aiops_travelops.models")
 
 
 def _register_project_models() -> None:

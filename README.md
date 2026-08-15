@@ -11,10 +11,11 @@ This is not a general AI showcase. Every project maps to a stated requirement of
 the role it targets, and anything that could not be justified against that was
 cut or merged rather than kept for volume. The reasoning is on the record below.
 
-> **Current state: Projects 1 and 3 shipped and deployed.** The foundation, the
-> AI SOP Generator and the AI Operations Dashboard are built, tested, and
-> running on a public URL. The other seven projects are not implemented yet —
-> the UI says so, and this README will not claim otherwise until they are.
+> **Current state: Projects 1, 3 and 6 shipped and deployed** — including the
+> flagship. The foundation, the AI SOP Generator, the AI Operations Dashboard
+> and AI Travel Operations are built, tested, and running on a public URL. The
+> other six projects are not implemented yet — the UI says so, and this README
+> will not claim otherwise until they are.
 
 ## ▶ Live demo
 
@@ -34,7 +35,7 @@ questions and a real model answers (see [The two modes](#the-two-modes) below).
 |---|---------|--------------------------|---------------|-----------------|-----------|
 | 1 | **AI SOP Generator** | Document and standardize scalable operational processes | Structured generation + citation-backed semantic search (pgvector) | ~120 hrs/yr* | [live](https://ai-operations-toolkit-web.vercel.app/documents) · [code](projects/ai-sop-generator/) |
 | 2 | **AI Operations Dashboard** | Build dashboards; analyze operational data | Insight layer over deterministic trend/anomaly detection | ~180 hrs/yr* | [live](https://ai-operations-toolkit-web.vercel.app/) · [code](projects/ai-operations-dashboard/) |
-| 3 | **AI Travel Operations** (flagship) | Identify operational bottlenecks and solve them using AI | Incident classification, affected-booking lookup, drafted agent comms | TBM | planned |
+| 3 | **AI Travel Operations** (flagship) | Identify operational bottlenecks and solve them using AI | Incident classification, affected-booking lookup, drafted agent comms with enforced human approval | ~390 hrs/yr* | [live](https://ai-operations-toolkit-web.vercel.app/travel-ops) · [code](projects/ai-travel-operations/) |
 | 4 | AI Workflow Builder | Build AI-assisted workflows and automations | AI nodes inside a visual workflow editor | TBM | planned |
 | 5 | AI Project Tracker | Own projects from planning to implementation; build trackers | Health assessment with stated reasoning | TBM | planned |
 | 6 | AI Report Generator | Analyze operational data and identify improvements | Executive summary over existing analysis | TBM | planned |
@@ -140,10 +141,10 @@ locally with your own key in `.env` is (`DEMO_MODE=false`).*
   /analytics               Deterministic profiling, trend and anomaly detection
   /document-processing     Markdown / HTML / PDF export and spreadsheet reading, built once
 
-/projects                  Nine project directories; SOP Generator and Operations Dashboard built
+/projects                  Nine project directories; SOP Generator, Operations Dashboard and Travel Operations built
 /docs                      architecture · business-cases · decisions
 /scripts                   Demo data generator · demo output recorder
-/tests                     176 tests
+/tests                     194 tests
 /.github/workflows         CI: lint · typecheck · test · build · secret scan
 ```
 

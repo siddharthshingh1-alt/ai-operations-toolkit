@@ -25,6 +25,14 @@ class NodeType(StrEnum):
     AI_CLASSIFICATION = "ai_classification"
     AI_EXTRACTION = "ai_extraction"
     AI_SUMMARIZATION = "ai_summarization"
+    #: Drafting new prose from context — a partner email, a status note.
+    #:
+    #: Added for the Travel Operations flagship, which drafts agent
+    #: communications. Section 7's palette had classification, extraction and
+    #: summarisation but nothing for writing something new, and labelling a
+    #: drafting step "summarisation" would have made the execution log lie
+    #: about what the model was asked to do.
+    AI_GENERATION = "ai_generation"
     CONDITION = "condition"
     TRANSFORM = "transform"
     EMAIL = "email"

@@ -32,7 +32,7 @@ export const PROJECTS: ProjectSummary[] = [
     jdRequirement: "Identify operational bottlenecks and solve them using AI",
     description:
       "The flagship. A working simulation of B2B travel operations: bookings, delays, incidents, refunds, and a travel-agent partner view.",
-    status: "planned",
+    status: "shipped",
     phase: 3,
   },
   {

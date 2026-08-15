@@ -23,6 +23,7 @@
 # Projects, in build order.
 -e ./projects/ai-sop-generator
 -e ./projects/ai-operations-dashboard
+-e ./projects/ai-travel-operations
 
 # The API app, which declares FastAPI and uvicorn. Installing it (rather than
 # relying on the working directory) is what lets pytest and CI import `app`

@@ -57,6 +57,19 @@ class EmailProvider(ABC):
         an unapproved send impossible to express.
         """
 
+    @abstractmethod
+    def send_message(self, *, recipient: str, subject: str, body: str, approved_by: str) -> str:
+        """Send a new message, not a reply, and return its message id.
+
+        Added for Travel Operations (Section 14), which writes to an agency
+        about an incident rather than replying to something in an inbox.
+        `send_reply` was the wrong seam for that: it requires an existing
+        thread, so an outbound message had nothing to attach to.
+
+        `approved_by` is required here for the same reason it is there — an
+        unapproved send must remain impossible to express.
+        """
+
 
 # ------------------------------------------------------------- calendar
 

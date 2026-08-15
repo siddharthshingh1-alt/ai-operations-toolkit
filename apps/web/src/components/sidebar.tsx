@@ -17,6 +17,7 @@ const NAV = [
   { href: "/projects", label: "Projects" },
   { href: "/workflows", label: "Workflows" },
   { href: "/documents", label: "Documents" },
+  { href: "/travel-ops", label: "Travel Ops" },
   { href: "/tasks", label: "Tasks" },
   { href: "/reports", label: "Reports" },
   { href: "/settings", label: "Settings" },
