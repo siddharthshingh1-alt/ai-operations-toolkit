@@ -23,7 +23,7 @@ export const PROJECTS: ProjectSummary[] = [
     jdRequirement: "Build dashboards; analyze operational data",
     description:
       "Upload a CSV or Excel file and get KPI cards, charts, trend and anomaly detection, with observations kept separate from hypotheses.",
-    status: "planned",
+    status: "shipped",
     phase: 2,
   },
   {

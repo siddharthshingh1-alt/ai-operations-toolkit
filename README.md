@@ -11,17 +11,17 @@ This is not a general AI showcase. Every project maps to a stated requirement of
 the role it targets, and anything that could not be justified against that was
 cut or merged rather than kept for volume. The reasoning is on the record below.
 
-> **Current state: Project 1 shipped and deployed.** The foundation and the AI
-> SOP Generator are built, tested, and running on a public URL. The other eight
-> projects are not implemented yet — the UI says so, and this README will not
-> claim otherwise until they are.
+> **Current state: Projects 1 and 3 shipped and deployed.** The foundation, the
+> AI SOP Generator and the AI Operations Dashboard are built, tested, and
+> running on a public URL. The other seven projects are not implemented yet —
+> the UI says so, and this README will not claim otherwise until they are.
 
 ## ▶ Live demo
 
 **https://ai-operations-toolkit-web.vercel.app**
 
-No sign-up, no API key. It runs in Demo Mode, replaying 12 *real* recorded AI
-responses rather than simulated ones (see [The two modes](#the-two-modes) below).
+No sign-up, no API key needed from you. **The AI runs live** — ask it your own
+questions and a real model answers (see [The two modes](#the-two-modes) below).
 
 > The API is on a free tier that sleeps after 15 minutes idle, so **the first
 > load can take up to a minute** while it wakes. It is fast afterwards.
@@ -33,7 +33,7 @@ responses rather than simulated ones (see [The two modes](#the-two-modes) below)
 | # | Project | JD requirement it proves | AI capability | Business impact | Live demo |
 |---|---------|--------------------------|---------------|-----------------|-----------|
 | 1 | **AI SOP Generator** | Document and standardize scalable operational processes | Structured generation + citation-backed semantic search (pgvector) | ~120 hrs/yr* | [live](https://ai-operations-toolkit-web.vercel.app/documents) · [code](projects/ai-sop-generator/) |
-| 2 | AI Operations Dashboard | Build dashboards; analyze operational data | Insight layer over deterministic trend/anomaly detection | TBM | planned |
+| 2 | **AI Operations Dashboard** | Build dashboards; analyze operational data | Insight layer over deterministic trend/anomaly detection | ~180 hrs/yr* | [live](https://ai-operations-toolkit-web.vercel.app/) · [code](projects/ai-operations-dashboard/) |
 | 3 | **AI Travel Operations** (flagship) | Identify operational bottlenecks and solve them using AI | Incident classification, affected-booking lookup, drafted agent comms | TBM | planned |
 | 4 | AI Workflow Builder | Build AI-assisted workflows and automations | AI nodes inside a visual workflow editor | TBM | planned |
 | 5 | AI Project Tracker | Own projects from planning to implementation; build trackers | Health assessment with stated reasoning | TBM | planned |
@@ -93,23 +93,29 @@ npm run record-demo          # record real AI outputs for Demo Mode (needs a key
 ## The two modes
 
 CLAUDE.md Section 3b requires the toolkit to be usable by a reviewer with zero
-API keys, without ever blurring real AI work and canned output. Both modes are
-labelled in the header on every page.
+API keys, without ever blurring real AI work and canned output. The active mode
+is labelled in the header on every page.
 
-| | Demo Mode *(default)* | Live |
+| | Live *(the public demo)* | Demo Mode *(local & CI default)* |
 |---|---|---|
-| Needs an API key | No | Yes |
-| Where output comes from | Recorded real responses, replayed | The provider, live |
-| Cost | Zero | Billed to your account |
-| Missing data behaviour | **Says so and stops** | n/a |
+| Needs an API key | Yes — server-side, never yours | No |
+| Where output comes from | The provider, live | Recorded real responses, replayed |
+| Answers a question nobody anticipated | **Yes** | No — says so instead |
+| Cost | Free tier, ~20 requests/day, shared | Zero |
+
+**The public deployment runs live**, so a visitor can type their own question
+and get a real answer. It runs on a free tier with no billing attached, which
+makes the daily quota a hard ceiling rather than a bill; when it is reached the
+site says so in plain language. The reasoning behind choosing that over a
+recordings-only demo is in CLAUDE.md Section 3b.
 
 **Demo Mode cannot invent an answer.** If no recording exists for a request it
 raises an error naming the fix. That is the line between a cached demo output
 (required) and a fake API response (banned) — enforced in code, not in a
 comment. See [`docs/decisions/0002`](docs/decisions/0002-demo-mode-replays-real-outputs.md).
 
-A technical reviewer who wants to verify the AI is real can paste their own key
-in the UI and watch it run live.
+*Pasting your own key into the hosted site is **not** implemented. Running it
+locally with your own key in `.env` is (`DEMO_MODE=false`).*
 
 ---
 
@@ -132,12 +138,12 @@ in the UI and watch it run live.
 /services
   /workflow-engine         The engine. Project 4 is a UI on top of it, not a second one.
   /analytics               Deterministic profiling, trend and anomaly detection
-  /document-processing     Markdown / HTML / PDF export, built once
+  /document-processing     Markdown / HTML / PDF export and spreadsheet reading, built once
 
-/projects                  Nine project directories (READMEs only — none built yet)
+/projects                  Nine project directories; SOP Generator and Operations Dashboard built
 /docs                      architecture · business-cases · decisions
 /scripts                   Demo data generator · demo output recorder
-/tests                     83 tests
+/tests                     176 tests
 /.github/workflows         CI: lint · typecheck · test · build · secret scan
 ```
 

@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aiops-dashboard"
+version = "0.1.0"
+description = "Project 3 — AI Operations Dashboard, including the merged-in KPI analyser (CLAUDE.md Section 11)."
+requires-python = ">=3.12"
+dependencies = [
+    "aiops-config",
+    "aiops-utils",
+    "aiops-ai",
+    "aiops-analytics",
+    "aiops-docproc",
+    "pandas>=2.2",
+    "pydantic>=2.8",
+    "fastapi>=0.115",
+    "python-multipart>=0.0.9",
+]
+
+[tool.setuptools]
+packages = ["aiops_dashboard"]

@@ -17,9 +17,20 @@ from aiops_docproc.extraction import (
     detect_kind,
     extract_text,
 )
+from aiops_docproc.tabular import (
+    MAX_COLUMNS,
+    MAX_ROWS,
+    MAX_UPLOAD_BYTES,
+    TableKind,
+    detect_table_kind,
+    read_table,
+)
 
 __all__ = [
+    "MAX_COLUMNS",
     "MAX_EXTRACTED_CHARS",
+    "MAX_ROWS",
+    "MAX_UPLOAD_BYTES",
     "Document",
     "DocumentKind",
     "DocumentSection",
@@ -28,8 +39,11 @@ __all__ = [
     "HtmlExporter",
     "MarkdownExporter",
     "PdfExporter",
+    "TableKind",
     "available_formats",
     "detect_kind",
+    "detect_table_kind",
     "extract_text",
     "get_exporter",
+    "read_table",
 ]

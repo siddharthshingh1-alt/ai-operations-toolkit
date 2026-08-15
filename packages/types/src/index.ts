@@ -220,3 +220,123 @@ export interface GenerateResponse {
   content: SopContent;
   usage: UsageInfo;
 }
+
+/* ------------------------------------------------------------------ *
+ * Project 3 — AI Operations Dashboard (`/api/dashboard`)
+ *
+ * The split between `Analysis` and `InsightReport` is deliberate and load
+ * bearing: `Analysis` is measured, `InsightReport` is interpreted. They arrive
+ * from different endpoints and must never be merged into one object, because
+ * the UI's job is to keep a reader able to tell them apart.
+ * ------------------------------------------------------------------ */
+
+export type ColumnKind =
+  | "numeric"
+  | "date"
+  | "categorical"
+  | "identifier"
+  | "text"
+  | "boolean"
+  | "empty";
+
+export type TrendDirection = "rising" | "falling" | "flat";
+
+export interface ColumnProfile {
+  name: string;
+  kind: ColumnKind;
+  dtype: string;
+  non_null_count: number;
+  null_count: number;
+  distinct_count: number;
+  minimum: number | null;
+  maximum: number | null;
+  mean: number | null;
+  top_values: string[];
+}
+
+export interface Trend {
+  column: string;
+  direction: TrendDirection;
+  first_value: number;
+  last_value: number;
+  change_pct: number;
+  periods: number;
+}
+
+export interface Anomaly {
+  column: string;
+  index_label: string;
+  value: number;
+  mean: number;
+  std_dev: number;
+  z_score: number;
+}
+
+export interface KpiCard {
+  label: string;
+  value: number;
+  unit: string;
+  change_pct: number | null;
+  direction: TrendDirection | null;
+}
+
+export interface SeriesPoint {
+  label: string;
+  value: number;
+  is_anomaly: boolean;
+}
+
+export interface ChartSeries {
+  column: string;
+  points: SeriesPoint[];
+}
+
+/** Everything measured from a file. No model was involved in producing it. */
+export interface Analysis {
+  dataset: string;
+  row_count: number;
+  column_count: number;
+  columns: ColumnProfile[];
+  date_column: string | null;
+  kpis: KpiCard[];
+  series: ChartSeries[];
+  trends: Trend[];
+  anomalies: Anomaly[];
+  preview_rows: Record<string, string>[];
+  preview_columns: string[];
+  facts_key: string;
+}
+
+/** One finding in the three-part form CLAUDE.md Section 11 mandates. */
+export interface Insight {
+  observed: string;
+  hypothesis: string;
+  recommendation: string;
+}
+
+export interface InsightReport {
+  summary: string;
+  insights: Insight[];
+}
+
+export interface InsightResponse {
+  report: InsightReport;
+  model: string;
+  provider: string;
+  duration_ms: number;
+  input_tokens: number;
+  output_tokens: number;
+  estimated_cost_usd: number | null;
+  from_cache: boolean;
+}
+
+export interface SampleDataset {
+  key: string;
+  name: string;
+  description: string;
+  row_count: number;
+}
+
+export interface SampleListResponse {
+  samples: SampleDataset[];
+}

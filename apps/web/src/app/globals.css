@@ -13,6 +13,25 @@
   --muted: #64748b;
   --border: #e2e8f0;
   --accent: #0f766e;
+
+  /*
+   * Chart tokens (Project 3).
+   *
+   * Validated with the data-viz validator against the surfaces these actually
+   * render on — #ffffff here and #0f172a below — not chosen by eye. Both modes
+   * pass the lightness band, chroma floor, CVD separation, normal-vision floor
+   * and 3:1 contrast checks. The dark steps are *selected* for the dark
+   * surface, not an automatic inversion of the light ones.
+   *
+   * `--chart-anomaly` is a status colour, never a series colour. It is always
+   * accompanied by a written count above the chart, so a flagged point is
+   * never identified by colour alone.
+   */
+  --chart-line: #2a78d6;
+  --chart-anomaly: #d03b3b;
+  --chart-grid: #e1e0d9;
+  --chart-axis: #898781;
+  --chart-surface: #ffffff;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -23,6 +42,12 @@
     --muted: #94a3b8;
     --border: #1e293b;
     --accent: #2dd4bf;
+
+    --chart-line: #3987e5;
+    --chart-anomaly: #d03b3b;
+    --chart-grid: #2c2c2a;
+    --chart-axis: #898781;
+    --chart-surface: #0f172a;
   }
 }
 

@@ -14,6 +14,7 @@ from __future__ import annotations
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
+from aiops_dashboard.router import router as dashboard_router
 from aiops_sop.router import router as sop_router
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -78,9 +79,10 @@ def create_app() -> FastAPI:
     register_error_handlers(app)
     app.include_router(health.router)
 
-    # Project 1 — AI SOP Generator. Each project mounts its own router here as
-    # it is built; the router carries its own prefix.
-    app.include_router(sop_router)
+    # Each project mounts its own router here as it is built; the router
+    # carries its own prefix.
+    app.include_router(sop_router)  # Project 1 — AI SOP Generator
+    app.include_router(dashboard_router)  # Project 3 — AI Operations Dashboard
     return app
 
 
