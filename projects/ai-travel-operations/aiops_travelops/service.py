@@ -704,7 +704,8 @@ def _seed_incidents(db: Session) -> int:
         created += 1
 
     db.flush()
-    logger.info("seeded travel incidents", extra={"created": created})
+    # `created` is a reserved LogRecord attribute; passing it raises KeyError.
+    logger.info("seeded travel incidents", extra={"seeded": created})
     return created
 
 

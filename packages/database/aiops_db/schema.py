@@ -38,7 +38,8 @@ def _register_project_models() -> None:
         except ImportError:  # pragma: no cover — that project is not installed
             logger.debug(
                 "project models not available; their tables will not be created",
-                extra={"module": module},
+                # `module` is a reserved LogRecord attribute; it raises KeyError.
+                extra={"module_name": module},
             )
 
 
