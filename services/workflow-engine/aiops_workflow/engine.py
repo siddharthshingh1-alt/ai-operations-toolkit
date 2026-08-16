@@ -11,6 +11,9 @@ registered by the projects that need them, as those projects get built.
 Human-in-the-loop is enforced structurally, not by convention: reaching a
 HUMAN_APPROVAL node pauses the run and returns. Nothing downstream of it can
 execute until `resume()` is called with an approver.
+
+`run()` additionally refuses a definition in which a high-risk node can be
+reached without passing an approval first — see `validation.py`.
 """
 
 from __future__ import annotations
@@ -28,6 +31,7 @@ from aiops_workflow.types import (
     WorkflowExecution,
     WorkflowNode,
 )
+from aiops_workflow.validation import unguarded_high_risk_nodes
 
 logger = get_logger(__name__)
 
@@ -78,6 +82,21 @@ class WorkflowEngine:
         if workflow.node(workflow.start_node_id) is None:
             raise ValidationError(
                 f"Workflow {workflow.name!r} start node {workflow.start_node_id!r} does not exist."
+            )
+
+        # A high-risk action reachable without a human is refused here rather
+        # than left to each caller to remember. There is no argument that turns
+        # this off: an escape hatch would return HIGH_RISK_NODES to what it was
+        # for most of this repository's life — a set nothing consulted.
+        unguarded = unguarded_high_risk_nodes(workflow)
+        if unguarded:
+            names = ", ".join(repr(node.label) for node in unguarded)
+            raise ValidationError(
+                f"Workflow {workflow.name!r} can reach {names} without human approval.",
+                user_message=(
+                    f"This workflow can run {names} without anyone approving it "
+                    "first. Add a Human approval step before it."
+                ),
             )
 
         execution = WorkflowExecution(workflow_id=workflow.id, context=dict(context or {}))

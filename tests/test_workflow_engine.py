@@ -139,8 +139,11 @@ def test_loop_is_detected_rather_than_hanging() -> None:
 
 
 def test_unregistered_node_type_fails_clearly() -> None:
-    node = WorkflowNode(id="a", type=NodeType.WEBHOOK, label="Call out")
-    workflow = Workflow(name="Webhook", nodes=[node], start_node_id="a")
+    # NOTIFICATION rather than WEBHOOK: the node type is incidental to what this
+    # test checks, and a high-risk type would now be refused before it ran, by
+    # the approval guard rather than by the missing handler.
+    node = WorkflowNode(id="a", type=NodeType.NOTIFICATION, label="Tell the team")
+    workflow = Workflow(name="Notify", nodes=[node], start_node_id="a")
 
     execution = WorkflowEngine().run(workflow)
     assert execution.status is ExecutionStatus.FAILED
@@ -153,8 +156,8 @@ def test_handler_failure_is_recorded_not_swallowed() -> None:
     def explode(node: WorkflowNode, context: dict[str, Any]) -> dict[str, Any]:
         raise RuntimeError("supplier API is down")
 
-    engine.register(NodeType.WEBHOOK, explode)
-    node = WorkflowNode(id="a", type=NodeType.WEBHOOK, label="Notify supplier")
+    engine.register(NodeType.NOTIFICATION, explode)
+    node = WorkflowNode(id="a", type=NodeType.NOTIFICATION, label="Notify supplier")
     workflow = Workflow(name="Notify", nodes=[node], start_node_id="a")
 
     execution = engine.run(workflow)

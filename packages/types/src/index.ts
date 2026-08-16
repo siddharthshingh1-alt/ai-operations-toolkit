@@ -488,3 +488,100 @@ export interface AgentPartner {
 export interface PartnerListResponse {
   partners: AgentPartner[];
 }
+
+/* ------------------------------------------------------------------ *
+ * Project 4 — AI Workflow Builder (`/api/workflows`)
+ *
+ * `WorkflowDefinition` mirrors the engine's own `Workflow`. The builder edits
+ * this and hands it straight back, which is what makes Project 4 a client of
+ * the engine rather than a second implementation of it.
+ * ------------------------------------------------------------------ */
+
+export type WorkflowNodeType =
+  | "trigger"
+  | "ai_classification"
+  | "ai_extraction"
+  | "ai_summarization"
+  | "ai_generation"
+  | "condition"
+  | "transform"
+  | "email"
+  | "webhook"
+  | "database"
+  | "notification"
+  | "human_approval";
+
+export interface WorkflowNodeDefinition {
+  id: string;
+  type: WorkflowNodeType;
+  label: string;
+  config: Record<string, unknown>;
+  next_id: string | null;
+  next_id_if_false: string | null;
+}
+
+export interface WorkflowDefinition {
+  id: string;
+  name: string;
+  description: string;
+  nodes: WorkflowNodeDefinition[];
+  start_node_id: string | null;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface WorkflowValidationIssue {
+  code: string;
+  message: string;
+  node_id: string | null;
+}
+
+export interface PaletteEntry {
+  type: WorkflowNodeType;
+  label: string;
+  available: boolean;
+  reason: string | null;
+  high_risk: boolean;
+}
+
+export interface WorkflowSummary {
+  id: string;
+  name: string;
+  description: string;
+  node_count: number;
+  is_read_only: boolean;
+  blocking_issue_count: number;
+  ai_request_estimate: number;
+}
+
+export interface WorkflowExecutionSummary {
+  id: string;
+  status: string;
+  created_at: string;
+  node_count: number;
+  total_cost_usd: number;
+}
+
+export interface WorkflowDetail {
+  id: string;
+  name: string;
+  description: string;
+  is_read_only: boolean;
+  definition: WorkflowDefinition;
+  issues: WorkflowValidationIssue[];
+  ai_request_estimate: number;
+  executions: WorkflowExecutionSummary[];
+}
+
+export interface WorkflowListResponse {
+  workflows: WorkflowSummary[];
+  palette: PaletteEntry[];
+  seeded: number;
+}
+
+export interface WorkflowExecutionDetail {
+  id: string;
+  workflow_id: string;
+  status: string;
+  execution: WorkflowExecutionView;
+}

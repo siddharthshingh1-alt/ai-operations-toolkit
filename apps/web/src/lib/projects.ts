@@ -41,7 +41,7 @@ export const PROJECTS: ProjectSummary[] = [
     jdRequirement: "Build AI-assisted workflows and automations",
     description:
       "A visual editor on top of the shared workflow engine, with a full execution log for every run.",
-    status: "planned",
+    status: "shipped",
     phase: 4,
   },
   {
