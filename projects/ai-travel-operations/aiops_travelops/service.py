@@ -13,6 +13,7 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from sqlalchemy import select
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from aiops_adapters import Booking, BookingStatus, get_booking_provider, get_email_provider
@@ -649,7 +650,22 @@ def seed_incidents(db: Session) -> int:
     than with an empty state and a "report an incident" button, and these are
     derived from the synthetic dataset rather than invented separately — the
     delays being reported are delays the data actually contains.
+
+    Wrapped so a seeding failure cannot take the incident list down with it:
+    seeding is a convenience, the list is the feature.
     """
+    try:
+        return _seed_incidents(db)
+    except SQLAlchemyError as exc:
+        db.rollback()
+        logger.warning(
+            "could not seed travel incidents; continuing without them",
+            extra={"error": str(exc).splitlines()[0][:200]},
+        )
+        return 0
+
+
+def _seed_incidents(db: Session) -> int:
     if db.scalar(select(TravelIncident.id).limit(1)) is not None:
         return 0
 

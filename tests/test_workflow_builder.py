@@ -15,7 +15,7 @@ Nothing here needs an API key or a network — the AI is a stub.
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
 import pytest
 from aiops_builder import (
@@ -371,3 +371,28 @@ def test_this_project_contains_no_engine() -> None:
     source = inspect.getsource(service)
     assert "WorkflowEngine(" in source
     assert ".run(" in source and ".resume(" in source
+
+
+def test_a_seeding_failure_does_not_break_the_list() -> None:
+    """Convenience must not be able to break the feature it decorates.
+
+    Seeding runs inside the list endpoint so a first visitor does not meet an
+    empty page. When the two were coupled, a seeding failure in production
+    turned every request for the list — including ones needing nothing seeded —
+    into a 500.
+    """
+    from aiops_builder.service import seed_templates
+    from sqlalchemy.exc import OperationalError
+
+    class _BrokenSession:
+        rolled_back = False
+
+        def scalar(self, *args: Any, **kwargs: Any) -> Any:
+            raise OperationalError("SELECT 1", {}, Exception("connection timeout expired"))
+
+        def rollback(self) -> None:
+            self.rolled_back = True
+
+    session = _BrokenSession()
+    assert seed_templates(cast("Any", session)) == 0
+    assert session.rolled_back, "a failed seed must not leave the transaction dirty"

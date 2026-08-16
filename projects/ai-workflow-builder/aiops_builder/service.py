@@ -12,6 +12,7 @@ from __future__ import annotations
 from typing import Any
 
 from sqlalchemy import select
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from aiops_ai.base import AIProvider
@@ -54,25 +55,41 @@ def get_workflow(db: Session, workflow_id: str) -> WorkflowRecord:
 
 
 def seed_templates(db: Session) -> int:
-    """Install the starting workflows if none exist."""
-    if db.scalar(select(WorkflowRecord.id).limit(1)) is not None:
-        return 0
+    """Install the starting workflows if none exist.
 
-    created = 0
-    for workflow, read_only in all_templates():
-        db.add(
-            WorkflowRecord(
-                id=workflow.id,
-                name=workflow.name,
-                description=workflow.description,
-                definition=workflow.model_dump(mode="json"),
-                is_read_only=read_only,
+    A failure here must not take the list endpoint down with it. Seeding is a
+    convenience — it stops the first visitor meeting an empty page — and the
+    list of workflows is the actual feature. When the two were coupled, a
+    seeding failure in production turned every request for the list into a 500,
+    including requests that needed nothing seeded. Convenience that can break
+    the thing it decorates is not convenience.
+    """
+    try:
+        if db.scalar(select(WorkflowRecord.id).limit(1)) is not None:
+            return 0
+
+        created = 0
+        for workflow, read_only in all_templates():
+            db.add(
+                WorkflowRecord(
+                    id=workflow.id,
+                    name=workflow.name,
+                    description=workflow.description,
+                    definition=workflow.model_dump(mode="json"),
+                    is_read_only=read_only,
+                )
             )
+            created += 1
+        db.flush()
+        logger.info("seeded workflow templates", extra={"created": created})
+        return created
+    except SQLAlchemyError as exc:
+        db.rollback()
+        logger.warning(
+            "could not seed workflow templates; continuing without them",
+            extra={"error": str(exc).splitlines()[0][:200]},
         )
-        created += 1
-    db.flush()
-    logger.info("seeded workflow templates", extra={"created": created})
-    return created
+        return 0
 
 
 # ------------------------------------------------------------------ writing
