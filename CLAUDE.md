@@ -1,38 +1,41 @@
 # MASTER PROMPT — AI OPERATIONS TOOLKIT
-### (v2 — edited and aligned to a specific job target)
+### (v2 — scoped against a specific role profile)
 
 You are my senior software architect, AI engineer, product engineer, and technical mentor.
 
-I am building a portfolio project to get hired as an **AI Operations Associate** at a
-B2B travel-tech startup based in Delhi (Connaught Place). This is not a generic AI
-portfolio — every project must be defensible in an interview against the actual job
-description below. If a feature can't be justified against it, cut it.
+I am building this portfolio to get hired as an **AI Operations Associate** in **B2B
+travel technology**. This is not a generic AI portfolio — every project must be
+defensible in an interview against the role profile below. If a feature can't be
+justified against it, cut it.
 
 ---
 
-# 0. TARGET JOB — READ THIS FIRST
+# 0. ROLE PROFILE — READ THIS FIRST
 
-**Company:** B2B travel-tech startup. Enables travel *agents* (not end consumers) to
-book flights, hotels, and holidays, and provides end-to-end on-ground travel services.
-₹1000cr+ GMV, funded, high-growth.
+**Domain:** B2B travel technology. The customers are travel *agencies*, not end
+consumers — they book flights, hotels and holidays through the platform, and an
+operations team handles end-to-end on-ground delivery. High booking volume, thin
+operating margins, and a great deal of manual coordination between agencies,
+suppliers and travellers. That coordination is where the operational bottlenecks
+live, and it is what this role exists to attack.
 
-**Role:** AI Operations Associate. Core responsibility line, verbatim from the JD:
+**Role:** AI Operations Associate. The core responsibility, in one line:
 
-> "Build AI-assisted **workflows, SOPs, dashboards, trackers, and automations**."
+> Build AI-assisted **workflows, SOPs, dashboards, trackers, and automations**.
 
-Other JD requirements that matter for scoping:
+The other requirements that matter for scoping:
 
 * Identify operational bottlenecks and solve them using AI.
-* Analyze operational data and identify improvement opportunities.
+* Analyse operational data and identify improvement opportunities.
 * Collaborate cross-functionally to drive execution.
 * Own projects from planning to implementation.
-* Document and standardize scalable operational processes.
-* "Hands-on experience using AI tools in day-to-day work" is explicitly called out —
-  this means AI must visibly *do the work*, not just decorate a UI.
+* Document and standardise scalable operational processes.
+* Hands-on use of AI tools in day-to-day work — meaning AI must visibly *do the
+  work*, not merely decorate a UI.
 
 **What this means for scope:** every project in this toolkit must map to one of the
 five nouns above (workflows / SOPs / dashboards / trackers / automations), or directly
-mirror this company's actual business (agents booking flights/hotels/holidays +
+mirror the domain's actual business (agencies booking flights/hotels/holidays +
 on-ground delivery). Projects that don't map to either are cut or reframed below.
 This is a deliberate reduction from a broader 14-project idea to a sharper 8-project
 portfolio — depth and relevance over volume.
@@ -48,7 +51,7 @@ demonstrating:
 2. Operational dashboards and KPI/anomaly analysis
 3. Visual workflow automation
 4. Project/task tracking with AI health assessment
-5. Travel-operations simulation (flagship — mirrors the target company's business)
+5. Travel-operations simulation (flagship — mirrors the target domain's business)
 6. Operational reporting
 7. Operations-inbox triage and automation
 8. Cross-functional "ops command center" aggregation
@@ -257,7 +260,7 @@ payments system) without ever deciding whether that was in scope. Decision:
 Log **tokens used and estimated $ cost** per AI call in the Activity Log (Section 26),
 alongside model, duration, and status. For a portfolio aimed at an *AI-first
 operations* role, visibly tracking AI spend is on-thesis, not a nice-to-have — it's
-the kind of operational discipline the JD is screening for.
+the kind of operational discipline the role is screening for.
 
 ---
 
@@ -417,9 +420,9 @@ stretch goals if time remains.
 
 Rationale: SOP Generator first proves the AI layer and document generation cleanly
 with the lowest complexity. Operations Dashboard next proves data analysis. Travel
-Operations — the flagship, and the project most directly tied to the target company —
+Operations — the flagship, and the project most directly tied to the target domain —
 comes early enough to be a strong centerpiece, not an afterthought at project #12.
-Workflow Builder and Project Tracker round out the JD's exact five nouns. Report
+Workflow Builder and Project Tracker round out the exact five nouns. Report
 Generator, Operations Inbox, and Ops Command Center layer on top, with Command Center
 last since it aggregates outputs from the others.
 
@@ -431,7 +434,8 @@ last since it aggregates outputs from the others.
 Build this FIRST.
 
 **Purpose:** Turn messy operational knowledge into standardized, searchable SOPs.
-Directly matches the JD's "document and standardize scalable operational processes."
+Directly matches the role's requirement to document and standardise scalable
+operational processes.
 
 Input: process description, optional documents, optional existing SOP, role,
 department, objective.
@@ -465,7 +469,7 @@ Action item schema: `{ title, owner, deadline, priority, status }`.
 Simple task tracker: TODO / IN_PROGRESS / BLOCKED / DONE.
 
 Build this only after the core 6 (Sections 9, 11–15) are working — it supports
-"collaborate cross-functionally" but isn't in the JD's core five nouns.
+cross-functional collaboration but isn't one of the core five nouns.
 
 ---
 
@@ -534,7 +538,7 @@ No changes from v1 — this was already well-scoped and cleanly JD-aligned.
 ### (now includes a lightweight partner/agent relationship module — was "CRM Assistant")
 
 This is the most important project in the portfolio: it's a working simulation of
-the target company's actual business model — B2B, agents booking flights/hotels/
+the target domain's actual business model — B2B, agencies booking flights/hotels/
 holidays, plus on-ground delivery.
 
 Track: Bookings, Customers (travel agents, not end consumers), Flights, Hotels,
@@ -555,7 +559,7 @@ Flight delay detected
 ```
 
 **Folded-in module (was the standalone "CRM Assistant" project):** since travel
-agents *are* this company's customers, add a lightweight agent/partner relationship
+agencies *are* the platform's customers, add a lightweight agent/partner relationship
 view — agent activity, booking volume, open issues, last contact, next follow-up.
 This is deliberately scoped as "built-in to this project's data model," not a
 generic Salesforce-style CRM and not a separate numbered project.
@@ -580,7 +584,7 @@ reuse the trend/anomaly logic already built for Project 3 rather than rebuilding
 # 16. PROJECT 8 — AI OPERATIONS INBOX
 ### (renamed and reframed from "Email Assistant")
 
-Reframed around this company's actual operational email flow, not a generic personal
+Reframed around the domain's actual operational email flow, not a generic personal
 inbox: booking confirmations, delay/cancellation alerts, travel-agent partner
 emails, vendor/hotel communication.
 
@@ -632,8 +636,8 @@ Projects 3, 4, 5, 6, or 8.
 
 Documented explicitly so the "why" is on record, not just silently dropped:
 
-* **AI Avatar / Motion-transfer project** — cut entirely. Zero relevance to this JD
-  or this company's business (video/generative-media engineering, not operations).
+* **AI Avatar / Motion-transfer project** — cut entirely. Zero relevance to this role
+  or the domain's business (video/generative-media engineering, not operations).
   It also carries disproportionate scope (GPU dependency, a different engineering
   domain) and responsible-use overhead (consent, licensing, identity concerns)
   relative to any interview payoff for *this specific role*. If you want to build it
@@ -778,14 +782,14 @@ not a generic AI showcase.
 
 Include:
 
-* "About" — one paragraph: what this is and which role/company it targets
+* "About" — one paragraph: what this is and which role and domain it targets
 * Projects table: `| Project | JD requirement it proves | AI capability | Business impact | Live demo |`
 * Architecture diagram
 * Technology stack
 * Demo screenshots
 * "Why this portfolio exists" — explicitly reference the five nouns from Section 0
 * A short, explicit note on what was deliberately cut or merged and why (Section 18)
-  — this signals prioritization judgment, which is itself a thing this JD screens for
+  — this signals prioritization judgment, which is itself a thing the role screens for
   ("own operational projects from planning to implementation").
 
 ---
@@ -890,7 +894,7 @@ Then wait for my next instruction.
 # IMPORTANT
 
 The goal is not impressive-looking code. The goal is a portfolio a real hiring
-manager at this specific company can open, run (via a live demo link, not a local
+manager in this domain can open, run (via a live demo link, not a local
 setup), understand in minutes, and connect directly to the exact responsibilities in
 Section 0. Prioritize correctness, maintainability, business usefulness,
 documentation, and demonstrable results over breadth.

@@ -15,8 +15,8 @@ actually runs helps more.
 
 ## Which JD requirement this proves
 
-> *"Build AI-assisted **workflows** … and **automations**."*
-> *"Document and standardize scalable operational processes."*
+Builds AI-assisted **workflows** and **automations**, and documents and
+standardises a repeatable operational process.
 
 ## Who Uses It
 

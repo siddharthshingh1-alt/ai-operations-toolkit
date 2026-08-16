@@ -1,6 +1,6 @@
 """Project 6 — AI Travel Operations (CLAUDE.md Section 14). The flagship.
 
-A working simulation of the target company's business: travel agencies booking
+A working simulation of the target domain's business: travel agencies booking
 flights, hotels and holidays, and an operations team handling what goes wrong.
 
 Includes the folded-in agent/partner relationship module (was the standalone

@@ -1,7 +1,7 @@
 """The agent/partner relationship view (CLAUDE.md Section 14).
 
 This is the folded-in "CRM Assistant". It is deliberately not a generic CRM:
-there are no leads, no deals and no pipeline, because this company's customers
+there are no leads, no deals and no pipeline, because the platform's customers
 are travel agencies who are already customers. What an operations team actually
 needs to know about a partner is how much business they put through, what is
 currently going wrong for them, and whether anyone owes them a reply.

@@ -16,10 +16,8 @@ until they find time to write it down.
 
 ## Which JD requirement this proves
 
-> *"Build AI-assisted workflows, SOPs, **dashboards**, trackers, and automations."*
-> *"Analyze operational data and identify improvement opportunities."*
-
-Two of the five nouns, and the analysis line.
+Builds **dashboards** — two of the role's five nouns — and covers analysing
+operational data to identify improvement opportunities.
 
 ## Who Uses It
 

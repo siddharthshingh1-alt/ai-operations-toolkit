@@ -16,12 +16,12 @@ no time for it.
 
 ## Which JD requirement this proves
 
-> *"Identify operational bottlenecks and solve them using AI."*
-> *"Build AI-assisted workflows … and automations."*
-> *"Collaborate cross-functionally to drive execution."*
+Identifying operational bottlenecks and solving them with AI; building
+AI-assisted workflows and automations; collaborating cross-functionally to
+drive execution.
 
 And more directly than any other project here: it is a working simulation of
-**this company's actual business** — B2B travel, agencies as customers,
+**the target domain's actual business** — B2B travel, agencies as customers,
 on-ground incident handling.
 
 ## Who Uses It
