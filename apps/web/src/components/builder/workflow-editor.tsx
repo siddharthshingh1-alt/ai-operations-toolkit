@@ -104,6 +104,11 @@ export function WorkflowEditor({
   const [execution, setExecution] = useState<WorkflowExecutionDetail | null>(null);
   const [approver, setApprover] = useState("");
 
+  // Address the workflow by the row's id, never by `definition.id`. The
+  // definition is a document the editor edits; `detail.id` is the resource it
+  // is stored under, and it is what the page's own URL uses.
+  const workflowId = detail.id;
+
   const readOnly = detail.is_read_only;
   const selected = definition.nodes.find((node) => node.id === selectedId) ?? null;
 
@@ -181,7 +186,7 @@ export function WorkflowEditor({
   async function save() {
     setBusy(true);
     setError(null);
-    const result = await saveWorkflowAction(definition.id, definition);
+    const result = await saveWorkflowAction(workflowId, definition);
     if (result.ok) {
       setDetail(result.data);
       setDefinition(result.data.definition);
@@ -197,7 +202,7 @@ export function WorkflowEditor({
     setBusy(true);
     setError(null);
     setExecution(null);
-    const result = await runWorkflowAction(definition.id, runInput);
+    const result = await runWorkflowAction(workflowId, runInput);
     if (result.ok) setExecution(result.data);
     else setError(result.error);
     setBusy(false);
@@ -208,7 +213,7 @@ export function WorkflowEditor({
     setBusy(true);
     const result = await decideExecutionAction(
       execution.id,
-      definition.id,
+      workflowId,
       approved,
       approver,
     );

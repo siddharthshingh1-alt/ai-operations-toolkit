@@ -396,3 +396,131 @@ def test_a_seeding_failure_does_not_break_the_list() -> None:
     session = _BrokenSession()
     assert seed_templates(cast("Any", session)) == 0
     assert session.rolled_back, "a failed seed must not leave the transaction dirty"
+
+
+# --------------------------------------------------------- storage round-trip
+#
+# These go through the HTTP routes against a real database, because the bug
+# they cover could not be seen anywhere else. Every unit test above builds a
+# `Workflow` by hand and never stores it, so nothing exercised the one thing
+# the builder does on every visit: create a workflow, then save it back.
+#
+# What that missed: `create_workflow` let the row's primary key come from the
+# column default while the document kept the id it was constructed with — two
+# independent `new_id("wf")` calls. Both spell `wf_...`, so the mismatch was
+# invisible in a URL, a payload or a log line. The editor saved to the
+# document's id, no row had it, and a live user got "That workflow does not
+# exist" on the first save of every workflow they created.
+
+
+@pytest.fixture
+def builder_client() -> Any:
+    """The builder's routes over a real (in-memory) database.
+
+    SQLite stands in for Postgres; JSONB is the only Postgres-specific type in
+    the models, and it is only ever read and written whole.
+    """
+    from aiops_builder.models import WorkflowRecord  # noqa: F401  (registers the tables)
+    from aiops_builder.router import router
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+    from sqlalchemy import create_engine
+    from sqlalchemy.dialects.postgresql import JSONB
+    from sqlalchemy.ext.compiler import compiles
+    from sqlalchemy.orm import sessionmaker
+    from sqlalchemy.pool import StaticPool
+
+    from aiops_db import get_db
+    from aiops_db.base import Base
+    from app.errors import register_error_handlers
+
+    if not hasattr(builder_client, "_compiled"):
+
+        @compiles(JSONB, "sqlite")
+        def _jsonb_as_json(type_: Any, compiler: Any, **kw: Any) -> str:
+            return "JSON"
+
+        builder_client._compiled = True  # type: ignore[attr-defined]
+
+    engine = create_engine(
+        "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
+    )
+    tables = [Base.metadata.tables[name] for name in ("workflows", "workflow_executions")]
+    Base.metadata.create_all(engine, tables=tables)
+    session_factory = sessionmaker(bind=engine)
+
+    def _db() -> Any:
+        session = session_factory()
+        try:
+            yield session
+            session.commit()
+        finally:
+            session.close()
+
+    app = FastAPI()
+    register_error_handlers(app)
+    app.include_router(router)
+    app.dependency_overrides[get_db] = _db
+    return TestClient(app)
+
+
+def test_a_created_workflow_is_stored_under_the_id_its_document_carries(
+    builder_client: Any,
+) -> None:
+    """The row id and the document id must not be allowed to disagree.
+
+    `save_workflow` states the invariant — "the id in the document always
+    follows the row" — and `seed_templates` honoured it. Creation did not.
+    """
+    created = builder_client.post("/api/workflows", json={"name": "email"})
+    assert created.status_code == 200
+    body = created.json()
+    assert body["id"] == body["definition"]["id"]
+
+
+def test_creating_then_saving_a_workflow_round_trips(builder_client: Any) -> None:
+    """The walkthrough a visitor actually performs: new workflow, then save.
+
+    This is the exact sequence that returned "That workflow does not exist" in
+    production.
+    """
+    created = builder_client.post("/api/workflows", json={"name": "Refund triage"}).json()
+
+    definition = created["definition"]
+    definition["nodes"] = [
+        {"id": "node_trigger", "type": "trigger", "label": "Trigger", "next_id": "node_draft"},
+        {
+            "id": "node_draft",
+            "type": "ai_generation",
+            "label": "AI drafting",
+            "next_id": None,
+        },
+    ]
+    definition["start_node_id"] = "node_trigger"
+
+    saved = builder_client.put(f"/api/workflows/{created['id']}", json={"definition": definition})
+    assert saved.status_code == 200, saved.json()
+    assert len(saved.json()["definition"]["nodes"]) == 2
+
+    # And it is still there on the next read, under the same id.
+    fetched = builder_client.get(f"/api/workflows/{created['id']}")
+    assert fetched.status_code == 200
+    assert len(fetched.json()["definition"]["nodes"]) == 2
+
+
+def test_a_duplicated_workflow_is_addressable_too(builder_client: Any) -> None:
+    """Duplicate goes through the same creation path, so it had the same bug.
+
+    This is the one a reviewer hits: the shipped templates are read-only, so
+    duplicating one is the only way to edit them.
+    """
+    builder_client.get("/api/workflows")  # seeds the templates
+    source = builder_client.get("/api/workflows").json()["workflows"][0]
+
+    copy = builder_client.post(f"/api/workflows/{source['id']}/duplicate")
+    assert copy.status_code == 200
+    body = copy.json()
+
+    assert body["id"] != source["id"], "a copy must not overwrite its source"
+    assert body["id"] == body["definition"]["id"]
+    assert builder_client.get(f"/api/workflows/{body['id']}").status_code == 200

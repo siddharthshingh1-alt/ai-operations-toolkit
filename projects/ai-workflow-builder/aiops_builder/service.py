@@ -12,7 +12,6 @@ from __future__ import annotations
 from typing import Any
 
 from sqlalchemy import select
-from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from aiops_ai.base import AIProvider
@@ -81,9 +80,13 @@ def seed_templates(db: Session) -> int:
             )
             created += 1
         db.flush()
-        logger.info("seeded workflow templates", extra={"created": created})
+        # Not `extra={"created": ...}`: `created` is a reserved LogRecord
+        # attribute, and logging raises KeyError rather than overwrite it. That
+        # turned a successful seed into a 500 on the very request that
+        # performed it — the failure this function's own docstring is about.
+        logger.info("seeded workflow templates", extra={"seeded": created})
         return created
-    except SQLAlchemyError as exc:
+    except Exception as exc:  # noqa: BLE001 — see the docstring: seeding may never break the list
         db.rollback()
         logger.warning(
             "could not seed workflow templates; continuing without them",
@@ -96,7 +99,22 @@ def seed_templates(db: Session) -> int:
 
 
 def create_workflow(db: Session, workflow: Workflow) -> WorkflowRecord:
+    """Store a new definition, keyed by the id the document already carries.
+
+    The `id=` is load-bearing. Without it the row's primary key came from the
+    column default and the document kept its own — two independent
+    `new_id("wf")` calls — so a freshly created workflow had a row id that
+    disagreed with `definition.id`. Both are spelled `wf_...`, so nothing
+    looked wrong anywhere; the editor saved to the document's id, no row had
+    it, and the save came back "That workflow does not exist" while the empty
+    workflow sat in the list.
+
+    `save_workflow` already states the invariant this restores: the id in the
+    document follows the row. `seed_templates` already honoured it. Creation
+    was the one place that did not.
+    """
     record = WorkflowRecord(
+        id=workflow.id,
         name=workflow.name,
         description=workflow.description,
         definition=workflow.model_dump(mode="json"),
