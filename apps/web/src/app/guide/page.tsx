@@ -71,7 +71,8 @@ export default async function GuidePage() {
           How to use this demo
         </h1>
         <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-          About five minutes, no sign-up, no API key.
+          About ten minutes across all four live projects — no sign-up, no API
+          key.
         </p>
       </header>
 
@@ -82,22 +83,53 @@ export default async function GuidePage() {
           <p>
             The <strong>AI Operations Toolkit</strong> is a portfolio built for
             one specific job: an <strong>AI Operations Associate</strong> role at
-            a B2B travel-tech company, where travel agents book flights, hotels
+            a B2B travel-tech company, where travel agencies book flights, hotels
             and holidays and an operations team keeps the on-ground delivery
-            working. The job description asks for AI-assisted{" "}
+            working. The role calls for AI-assisted{" "}
             <em>workflows, SOPs, dashboards, trackers and automations</em>, and
             every project here maps to one of those. Anything that could not be
             justified against the role was cut rather than kept for volume.
           </p>
           <p>
-            One project is finished so far: the{" "}
-            <strong>AI SOP Generator</strong>. It turns a messy description of
-            how a process works into a standardised SOP — steps, decision
-            points, escalation rules, KPIs — and makes the resulting library
-            searchable, with the source SOP shown next to every answer. That is
-            the part you can click on today. The remaining projects are listed
-            on the <Link href="/" className="underline underline-offset-2">Dashboard</Link>{" "}
-            as not yet built, because they are not yet built.
+            <strong>Four of the nine projects are built and live</strong>, and
+            you can click on all four today:
+          </p>
+          <ul className="ml-1 space-y-1.5">
+            <li>
+              <Link href="/documents" className="font-medium underline underline-offset-2">
+                AI SOP Generator
+              </Link>{" "}
+              — turns a messy description of how a process works into a
+              standardised SOP, and makes the library searchable with the source
+              shown next to every answer.
+            </li>
+            <li>
+              <Link href="/" className="font-medium underline underline-offset-2">
+                AI Operations Dashboard
+              </Link>{" "}
+              — upload a spreadsheet and get KPIs, trends and anomalies, with
+              what was measured kept separate from what is only a hypothesis.
+            </li>
+            <li>
+              <Link href="/travel-ops" className="font-medium underline underline-offset-2">
+                AI Travel Operations
+              </Link>{" "}
+              — the flagship. A flight is delayed; it finds the affected
+              bookings, judges the severity, drafts each agency a message, and
+              stops for a human before anything is recorded as sent.
+            </li>
+            <li>
+              <Link href="/workflows" className="font-medium underline underline-offset-2">
+                AI Workflow Builder
+              </Link>{" "}
+              — build a sequence of steps and run it, on the same engine Travel
+              Operations runs on, with an approval guard the engine enforces.
+            </li>
+          </ul>
+          <p>
+            The remaining five are listed on the{" "}
+            <Link href="/projects" className="underline underline-offset-2">Projects</Link>{" "}
+            page as not yet built, because they are not yet built.
           </p>
           <p>
             All data here is synthetic. No real company, agent or traveller
@@ -184,8 +216,8 @@ export default async function GuidePage() {
       {/* ---- walkthrough --------------------------------------------------- */}
       <Card>
         <CardHeader
-          title="A five-minute walkthrough"
-          description="In order — each step shows something the one before it does not."
+          title="A ten-minute walkthrough"
+          description="In order — each step shows something the one before it does not. Steps 1–5 are the SOP Generator; 6, 7 and 8 are the other three live projects."
         />
         <ol className="divide-y divide-slate-200 dark:divide-slate-800">
           <Step n={1} title="Read an SOP first">
@@ -262,6 +294,80 @@ export default async function GuidePage() {
               something an operations team can rely on. When an SOP changes, the
               first question anyone asks is <em>what changed, and who changed
               it</em> — a flat list of snapshots cannot answer that.
+            </p>
+          </Step>
+
+          <Step n={6} title="Analyse a spreadsheet on the Dashboard">
+            <p>
+              Open the{" "}
+              <Link href="/" className="underline underline-offset-2">
+                Dashboard
+              </Link>{" "}
+              and pick a bundled dataset, or upload your own CSV or Excel file.
+              KPI cards, trends and anomalies appear immediately —{" "}
+              <strong>none of which the AI produced</strong>. Column types,
+              rates and outliers are computed in code. The AI is only asked to
+              interpret, and only when you press for insights.
+            </p>
+            <p>
+              Read how an insight is worded. An observation and a guess are
+              never allowed to blur into one another:{" "}
+              <em>observed</em> states a measured fact,{" "}
+              <em>hypothesis</em> is labelled as a possible contributor, and a
+              recommendation says what to go and check. Presenting a guess as a
+              finding is how a dashboard gets someone to act on nothing.
+            </p>
+          </Step>
+
+          <Step n={7} title="Work a live incident — the flagship">
+            <p>
+              Open{" "}
+              <Link href="/travel-ops" className="underline underline-offset-2">
+                Travel Ops
+              </Link>{" "}
+              and open an incident. The affected bookings are already listed:
+              that lookup matches route, supplier and date{" "}
+              <strong>with no AI involved</strong>, so the model can never
+              invent a booking reference — it is never asked to produce one.
+            </p>
+            <p>
+              Press <strong>Assess and draft</strong>. The AI judges severity{" "}
+              <em>and has to show its reasoning</em> — a bare label is a
+              rejected response — then writes one message per affected agency.
+              Every figure it cites was computed before it was called.
+            </p>
+            <p>
+              Then notice what it will not do: the drafts sit as drafts.
+              Approving one records your name and the time. Nothing is ever
+              transmitted to anyone, and the execution log shows exactly where
+              the human stood in the chain.
+            </p>
+          </Step>
+
+          <Step n={8} title="Build a workflow, and try to break the guard">
+            <p>
+              Open{" "}
+              <Link href="/workflows" className="underline underline-offset-2">
+                Workflows
+              </Link>
+              . The <em>Travel incident response</em> flow listed there is not a
+              picture of the previous step — it is the same definition that step
+              actually ran. The builder and the flagship are two clients of one
+              engine.
+            </p>
+            <p>
+              Make your own: <strong>New workflow</strong>, then add a Trigger,
+              an AI drafting step and an Email step, and save it. Now press{" "}
+              <strong>Run</strong>. It refuses — an Email step can be reached
+              without a human approving it first, and the engine will not
+              execute that graph. Add a <strong>Human approval</strong> step
+              before the Email and run it again: it pauses, waits for your
+              decision, and only then continues.
+            </p>
+            <p>
+              That refusal is the point of the project. It is enforced by the
+              shared engine rather than by the editor being careful, so it holds
+              for any workflow anyone builds.
             </p>
           </Step>
         </ol>
