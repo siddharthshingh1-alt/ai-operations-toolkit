@@ -68,6 +68,19 @@ class Settings(BaseSettings):
     google_api_key: str | None = None
     gemini_model: str = "gemini-3.6-flash"
 
+    # Tried in order when `gemini_model` reports its quota spent (Section 3b).
+    #
+    # This helps when the free tier meters *per model*, which it commonly does:
+    # the next model has its own allowance, so the day's budget is larger than
+    # any one model's. It does nothing when the cap is project-wide — there is
+    # no way to tell the two apart from the error, so the fallback is offered
+    # as an attempt and never described to a visitor as a guarantee.
+    #
+    # Set to an empty list to disable and fail on the first quota error.
+    gemini_fallback_models: list[str] = Field(
+        default_factory=lambda: ["gemini-3.5-flash", "gemini-3.5-flash-lite"]
+    )
+
     # Anthropic offers neither embeddings nor speech-to-text, so these two
     # capabilities are configured separately from the main chat provider.
     embedding_provider: ProviderName = ProviderName.OPENAI

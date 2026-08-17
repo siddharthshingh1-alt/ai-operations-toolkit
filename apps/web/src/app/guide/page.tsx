@@ -71,8 +71,8 @@ export default async function GuidePage() {
           How to use this demo
         </h1>
         <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-          About ten minutes across all four live projects — no sign-up, no API
-          key.
+          About twelve minutes across all five live projects — no sign-up, no
+          API key.
         </p>
       </header>
 
@@ -91,8 +91,8 @@ export default async function GuidePage() {
             justified against the role was cut rather than kept for volume.
           </p>
           <p>
-            <strong>Four of the nine projects are built and live</strong>, and
-            you can click on all four today:
+            <strong>Five of the nine projects are built and live</strong>, and
+            you can click on all five today:
           </p>
           <ul className="ml-1 space-y-1.5">
             <li>
@@ -125,9 +125,17 @@ export default async function GuidePage() {
               — build a sequence of steps and run it, on the same engine Travel
               Operations runs on, with an approval guard the engine enforces.
             </li>
+            <li>
+              <Link href="/tasks" className="font-medium underline underline-offset-2">
+                AI Project Tracker
+              </Link>{" "}
+              — projects, tasks, deadlines and dependencies, where overdue and
+              blocked are computed and the AI has to justify the GREEN, YELLOW
+              or RED it assigns.
+            </li>
           </ul>
           <p>
-            The remaining five are listed on the{" "}
+            The remaining four are listed on the{" "}
             <Link href="/projects" className="underline underline-offset-2">Projects</Link>{" "}
             page as not yet built, because they are not yet built.
           </p>
@@ -173,6 +181,14 @@ export default async function GuidePage() {
               clear message saying so, not a broken page. Try again tomorrow.
             </p>
             <p className="mt-2">
+              When one model&rsquo;s allowance runs out the site tries the next
+              model down before giving up. That often buys more requests,
+              because the free tier usually meters each model separately — but
+              if the limit turns out to be account-wide it changes nothing, and
+              you will get the same clear message. It is worth attempting, not
+              a promise.
+            </p>
+            <p className="mt-2">
               The AI key lives on the server and is never sent to your browser.
               You are not asked for one, and nothing you type is billed to you.
             </p>
@@ -216,8 +232,8 @@ export default async function GuidePage() {
       {/* ---- walkthrough --------------------------------------------------- */}
       <Card>
         <CardHeader
-          title="A ten-minute walkthrough"
-          description="In order — each step shows something the one before it does not. Steps 1–5 are the SOP Generator; 6, 7 and 8 are the other three live projects."
+          title="A twelve-minute walkthrough"
+          description="In order — each step shows something the one before it does not. Steps 1–5 are the SOP Generator; 6 to 9 are the other four live projects."
         />
         <ol className="divide-y divide-slate-200 dark:divide-slate-800">
           <Step n={1} title="Read an SOP first">
@@ -368,6 +384,34 @@ export default async function GuidePage() {
               That refusal is the point of the project. It is enforced by the
               shared engine rather than by the editor being careful, so it holds
               for any workflow anyone builds.
+            </p>
+          </Step>
+
+          <Step n={9} title="Make the AI justify a judgement">
+            <p>
+              Open{" "}
+              <Link href="/tasks" className="underline underline-offset-2">
+                Tasks
+              </Link>{" "}
+              and pick <em>Refund turnaround programme</em>. The counts along the
+              top — overdue, blocked, percent complete — are{" "}
+              <strong>computed from the tasks</strong>, not produced by a model.
+              A date comparison is exact, and it costs nothing.
+            </p>
+            <p>
+              Press <strong>Assess health</strong>. It returns GREEN, YELLOW or
+              RED <em>and the reasoning behind it</em>, because the reasoning is
+              a required field in the response schema rather than a polite
+              request in the prompt — a model answering with a bare label has
+              produced an invalid response, and nothing is stored. Check the
+              numbers in its explanation against the counts above it; they are
+              the same numbers, because the model was handed them.
+            </p>
+            <p>
+              Then press <strong>Generate</strong> on the weekly status report,
+              and download it as a PDF. The download costs no AI request: it
+              renders the report already on the screen rather than writing a
+              second, differently-worded one.
             </p>
           </Step>
         </ol>

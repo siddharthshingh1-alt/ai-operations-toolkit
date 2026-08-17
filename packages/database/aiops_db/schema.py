@@ -25,6 +25,7 @@ _PROJECT_MODEL_MODULES = (
     "aiops_sop.models",
     "aiops_travelops.models",
     "aiops_builder.models",
+    "aiops_tracker.models",
 )
 
 

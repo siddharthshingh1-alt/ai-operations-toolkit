@@ -50,7 +50,7 @@ export const PROJECTS: ProjectSummary[] = [
     jdRequirement: "Own projects from planning to implementation; build trackers",
     description:
       "Projects, tasks, owners, deadlines, and blockers, with an AI health assessment that explains why it chose each status.",
-    status: "planned",
+    status: "shipped",
     phase: 5,
   },
   {

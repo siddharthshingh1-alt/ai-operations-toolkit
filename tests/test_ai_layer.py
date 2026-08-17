@@ -355,3 +355,166 @@ def test_structured_output_rejects_a_mismatched_response(temp_cache_dir: Path) -
 
     with pytest.raises(AIProviderError, match="does not match"):
         _BadJson().generate_structured_output("x", output_model=_Example)
+
+
+# ------------------------------------------------- the Gemini model chain
+#
+# Added with Project 5. The chain exists because the public demo runs live on a
+# free tier: when one model's daily allowance is spent, the next model often
+# has its own. It is an attempt, not a guarantee — a project-wide cap looks
+# identical from the error — so these tests pin the behaviour rather than the
+# promise.
+
+
+def _chain_settings(**overrides: object) -> Any:
+    from aiops_config import ProviderName, Settings
+
+    defaults: dict[str, object] = {
+        "_env_file": None,
+        "demo_mode": False,
+        "ai_provider": ProviderName.GEMINI,
+        "google_api_key": "test-key-not-real",
+        "database_url": None,
+    }
+    defaults.update(overrides)
+    return Settings(**defaults)  # type: ignore[arg-type]
+
+
+def test_the_model_chain_starts_with_the_requested_model() -> None:
+    from aiops_ai.providers.gemini_provider import GeminiProvider
+
+    settings = _chain_settings(gemini_model="primary", gemini_fallback_models=["second", "third"])
+    provider = GeminiProvider.__new__(GeminiProvider)
+    provider._settings = settings  # type: ignore[attr-defined]
+    provider._default_model = settings.gemini_model  # type: ignore[attr-defined]
+
+    assert provider._model_chain(None) == ["primary", "second", "third"]
+
+
+def test_an_explicit_model_overrides_the_default_but_keeps_the_fallbacks() -> None:
+    from aiops_ai.providers.gemini_provider import GeminiProvider
+
+    settings = _chain_settings(gemini_model="primary", gemini_fallback_models=["second", "third"])
+    provider = GeminiProvider.__new__(GeminiProvider)
+    provider._settings = settings  # type: ignore[attr-defined]
+    provider._default_model = settings.gemini_model  # type: ignore[attr-defined]
+
+    assert provider._model_chain("chosen") == ["chosen", "second", "third"]
+
+
+def test_the_chain_never_tries_the_same_model_twice() -> None:
+    """A fallback list naming the default must not spend two attempts on it."""
+    from aiops_ai.providers.gemini_provider import GeminiProvider
+
+    settings = _chain_settings(gemini_model="primary", gemini_fallback_models=["primary", "second"])
+    provider = GeminiProvider.__new__(GeminiProvider)
+    provider._settings = settings  # type: ignore[attr-defined]
+    provider._default_model = settings.gemini_model  # type: ignore[attr-defined]
+
+    assert provider._model_chain(None) == ["primary", "second"]
+
+
+def test_an_empty_fallback_list_leaves_a_chain_of_one() -> None:
+    from aiops_ai.providers.gemini_provider import GeminiProvider
+
+    settings = _chain_settings(gemini_model="only", gemini_fallback_models=[])
+    provider = GeminiProvider.__new__(GeminiProvider)
+    provider._settings = settings  # type: ignore[attr-defined]
+    provider._default_model = settings.gemini_model  # type: ignore[attr-defined]
+
+    assert provider._model_chain(None) == ["only"]
+
+
+def test_a_spent_quota_advances_to_the_next_model() -> None:
+    from aiops_ai.providers.gemini_provider import GeminiProvider
+    from aiops_ai.types import Usage
+    from aiops_utils import AIQuotaExhausted
+
+    settings = _chain_settings(gemini_model="primary", gemini_fallback_models=["second", "third"])
+    provider = GeminiProvider.__new__(GeminiProvider)
+    provider._settings = settings  # type: ignore[attr-defined]
+    provider._default_model = settings.gemini_model  # type: ignore[attr-defined]
+
+    tried: list[str] = []
+
+    def _fake(
+        prompt: str,
+        *,
+        system: str | None,
+        model: str,
+        max_tokens: int | None,
+        json_mode: bool = False,
+        response_schema: Any = None,
+    ) -> Any:
+        tried.append(model)
+        if model != "third":
+            raise AIQuotaExhausted(f"{model} is spent")
+        return "answered", Usage(input_tokens=1, output_tokens=1), model, 5
+
+    provider._generate_with = _fake  # type: ignore[assignment]
+    text, _usage, used, _ms = provider._generate("p", system=None, model=None, max_tokens=None)
+
+    assert tried == ["primary", "second", "third"]
+    assert text == "answered"
+    assert used == "third", "the answer must report the model that actually produced it"
+
+
+def test_when_every_model_is_spent_the_quota_error_survives() -> None:
+    """The visitor must be told the budget is gone, not given a vaguer error."""
+    from aiops_ai.providers.gemini_provider import GeminiProvider
+    from aiops_utils import AIQuotaExhausted
+
+    settings = _chain_settings(gemini_model="primary", gemini_fallback_models=["second"])
+    provider = GeminiProvider.__new__(GeminiProvider)
+    provider._settings = settings  # type: ignore[attr-defined]
+    provider._default_model = settings.gemini_model  # type: ignore[attr-defined]
+
+    def _always_spent(
+        prompt: str,
+        *,
+        system: str | None,
+        model: str,
+        max_tokens: int | None,
+        json_mode: bool = False,
+        response_schema: Any = None,
+    ) -> Any:
+        raise AIQuotaExhausted(f"{model} is spent")
+
+    provider._generate_with = _always_spent  # type: ignore[assignment]
+    with pytest.raises(AIQuotaExhausted):
+        provider._generate("p", system=None, model=None, max_tokens=None)
+
+
+def test_a_non_quota_failure_does_not_walk_the_chain() -> None:
+    """A malformed request fails the same way on every model.
+
+    Retrying it would turn one clear error into three slow ones, so only a
+    spent quota advances.
+    """
+    from aiops_ai.providers.gemini_provider import GeminiProvider
+    from aiops_utils import AIProviderError
+
+    settings = _chain_settings(gemini_model="primary", gemini_fallback_models=["second", "third"])
+    provider = GeminiProvider.__new__(GeminiProvider)
+    provider._settings = settings  # type: ignore[attr-defined]
+    provider._default_model = settings.gemini_model  # type: ignore[attr-defined]
+
+    tried: list[str] = []
+
+    def _bad_request(
+        prompt: str,
+        *,
+        system: str | None,
+        model: str,
+        max_tokens: int | None,
+        json_mode: bool = False,
+        response_schema: Any = None,
+    ) -> Any:
+        tried.append(model)
+        raise AIProviderError("schema rejected")
+
+    provider._generate_with = _bad_request  # type: ignore[assignment]
+    with pytest.raises(AIProviderError):
+        provider._generate("p", system=None, model=None, max_tokens=None)
+
+    assert tried == ["primary"], "only a spent quota may advance the chain"

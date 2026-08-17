@@ -168,6 +168,18 @@ class GeminiProvider(AIProvider):
 
         raise AIProviderError(f"Gemini {what} failed: {last}") from last
 
+    def _model_chain(self, model: str | None) -> list[str]:
+        """The models to try, in order, for one logical request.
+
+        The first entry is the model actually asked for. The rest are the
+        configured fallbacks, minus any duplicate of the first, so a chain that
+        happens to name the default twice does not spend two attempts on it.
+        """
+        first = model or self._default_model
+        chain = [first]
+        chain.extend(m for m in self._settings.gemini_fallback_models if m and m != first)
+        return chain
+
     def _generate(
         self,
         prompt: str,
@@ -178,7 +190,63 @@ class GeminiProvider(AIProvider):
         json_mode: bool = False,
         response_schema: dict[str, Any] | None = None,
     ) -> tuple[str, Usage, str, int]:
-        chosen_model = model or self._default_model
+        """Generate, moving down the model chain when a quota is spent.
+
+        Only `AIQuotaExhausted` advances the chain. Every other failure is
+        raised immediately: a malformed request or a safety refusal will fail
+        identically on the next model, so retrying it would turn one clear
+        error into three slow ones.
+
+        If every model is spent, the *last* exhaustion is raised — by then the
+        message is true of the whole chain, which is what the visitor needs to
+        be told.
+        """
+        chain = self._model_chain(model)
+        last_quota_error: AIQuotaExhausted | None = None
+
+        for position, candidate in enumerate(chain):
+            try:
+                return self._generate_with(
+                    prompt,
+                    system=system,
+                    model=candidate,
+                    max_tokens=max_tokens,
+                    json_mode=json_mode,
+                    response_schema=response_schema,
+                )
+            except AIQuotaExhausted as exc:
+                last_quota_error = exc
+                remaining = chain[position + 1 :]
+                if not remaining:
+                    break
+                logger.info(
+                    "Gemini model quota spent; trying the next model in the chain",
+                    extra={
+                        "spent_model": candidate,
+                        "next_model": remaining[0],
+                        "chain_position": position + 1,
+                        "chain_length": len(chain),
+                    },
+                )
+
+        if last_quota_error is not None:
+            raise last_quota_error
+        # Unreachable: the chain always holds at least the requested model, so
+        # the loop either returns or records an exhaustion. Kept as a real
+        # error rather than an assert, which `python -O` would strip.
+        raise AIProviderError("Gemini generation produced no result and no error.")
+
+    def _generate_with(
+        self,
+        prompt: str,
+        *,
+        system: str | None,
+        model: str,
+        max_tokens: int | None,
+        json_mode: bool = False,
+        response_schema: dict[str, Any] | None = None,
+    ) -> tuple[str, Usage, str, int]:
+        chosen_model = model
         config = genai_types.GenerateContentConfig(
             system_instruction=system,
             max_output_tokens=max_tokens or self._settings.ai_max_output_tokens,

@@ -585,3 +585,130 @@ export interface WorkflowExecutionDetail {
   status: string;
   execution: WorkflowExecutionView;
 }
+
+/* ------------------------------------------------------------------------- *
+ * Project 5 — AI Project Tracker (`/api/tracker`)
+ *
+ * The split that defines this project shows up in these types. `ProjectFacts`
+ * is computed in Python from the stored rows — overdue counts, blocked counts,
+ * dependency state — and no model ever produces it. `health` and its
+ * `health_reasoning` are the model's, and the backend cannot store one without
+ * the other.
+ * ------------------------------------------------------------------------- */
+
+export type Health = "green" | "yellow" | "red";
+export type ProjectState = "active" | "paused" | "done";
+export type TaskStatus = "todo" | "in_progress" | "blocked" | "done";
+export type TaskPriority = "low" | "medium" | "high" | "urgent";
+
+export interface TaskView {
+  id: string;
+  title: string;
+  owner: string;
+  due_date: string | null;
+  status: TaskStatus;
+  priority: TaskPriority;
+  blocker_note: string | null;
+  depends_on_id: string | null;
+  depends_on_title: string | null;
+  /** Computed, never stored and never generated. */
+  is_overdue: boolean;
+  days_overdue: number | null;
+  blocked_by: string | null;
+}
+
+export interface ProjectFacts {
+  task_count: number;
+  done_count: number;
+  in_progress_count: number;
+  todo_count: number;
+  blocked_count: number;
+  overdue_count: number;
+  overdue_task_titles: string[];
+  blocked_task_titles: string[];
+  dependency_blocked_titles: string[];
+  unassigned_count: number;
+  completion_percent: number;
+  days_to_target: number | null;
+  target_date: string | null;
+  risk_count: number;
+  risks: string[];
+}
+
+export interface TrackerSuggestedAction {
+  action: string;
+  rationale: string;
+  task_id: string | null;
+}
+
+export interface TrackedProjectListItem {
+  id: string;
+  name: string;
+  owner: string;
+  state: ProjectState;
+  target_date: string | null;
+  health: Health | null;
+  health_reasoning: string | null;
+  task_count: number;
+  done_count: number;
+  overdue_count: number;
+  blocked_count: number;
+  completion_percent: number;
+}
+
+export interface TrackedProjectDetail {
+  id: string;
+  name: string;
+  description: string;
+  owner: string;
+  state: ProjectState;
+  target_date: string | null;
+  risks: string[];
+  health: Health | null;
+  health_reasoning: string | null;
+  health_factors: string[];
+  health_confidence: string | null;
+  health_assessed_at: string | null;
+  next_actions: TrackerSuggestedAction[];
+  summary: string | null;
+  facts: ProjectFacts;
+  tasks: TaskView[];
+  created_at: string;
+}
+
+export interface TrackerUsageInfo {
+  model: string;
+  provider: string;
+  duration_ms: number;
+  input_tokens: number;
+  output_tokens: number;
+  estimated_cost_usd: number | null;
+  from_demo_cache: boolean;
+}
+
+export interface TrackerAssessResponse {
+  project: TrackedProjectDetail;
+  usage: TrackerUsageInfo;
+}
+
+export interface TrackerProjectListResponse {
+  projects: TrackedProjectListItem[];
+  seeded: number;
+  ai_requests_per_assessment: number;
+}
+
+export interface WeeklyReportContent {
+  executive_summary: string;
+  highlights: string[];
+  concerns: string[];
+  risks: string[];
+  recommended_actions: string[];
+}
+
+export interface WeeklyReportResponse {
+  generated_at: string;
+  project_count: number;
+  content: WeeklyReportContent;
+  project_facts: TrackedProjectListItem[];
+  usage: TrackerUsageInfo;
+}
