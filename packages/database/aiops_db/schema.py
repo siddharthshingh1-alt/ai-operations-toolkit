@@ -27,6 +27,7 @@ _PROJECT_MODEL_MODULES = (
     "aiops_builder.models",
     "aiops_tracker.models",
     "aiops_command.models",
+    "aiops_inbox.models",
 )
 
 

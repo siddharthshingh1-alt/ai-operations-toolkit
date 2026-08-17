@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aiops-inbox"
+version = "0.1.0"
+description = "Project 8 — AI Operations Inbox: triage of operational email through the mock EmailProvider, with approval required before anything is recorded as sent (CLAUDE.md Section 16)."
+requires-python = ">=3.12"
+dependencies = [
+    "aiops-config",
+    "aiops-utils",
+    "aiops-ai",
+    "aiops-db",
+    "aiops-adapters",
+    "pydantic>=2.8",
+    "sqlalchemy>=2.0",
+    "fastapi>=0.115",
+]
+
+[tool.setuptools]
+packages = ["aiops_inbox"]

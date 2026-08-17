@@ -854,3 +854,104 @@ export interface ReportSampleOption {
   name: string;
   description: string;
 }
+
+/* ------------------------------------------------------------------------- *
+ * Project 8 — AI Operations Inbox (`/api/inbox`)
+ *
+ * Emails are read through the mock EmailProvider on every request and are
+ * never stored. `TriageView` is this project's own output — what the model
+ * read out of a message, and what happened to the reply someone drafted.
+ * ------------------------------------------------------------------------- */
+
+export type InboxCategory =
+  | "Agent Partner"
+  | "Booking Ops"
+  | "Vendor/Hotel"
+  | "Finance"
+  | "Internal"
+  | "Urgent"
+  | "Other";
+
+export type InboxUrgency = "low" | "normal" | "high" | "critical";
+export type DraftStatus = "none" | "draft" | "approved" | "rejected";
+
+export interface EmailView {
+  id: string;
+  thread_id: string;
+  sender: string;
+  subject: string;
+  body: string;
+  received_at: string;
+  is_read: boolean;
+  has_reply: boolean;
+  agency_id: string | null;
+  /** Computed, never generated. */
+  age_hours: number;
+  is_unanswered: boolean;
+}
+
+export interface ExtractedTask {
+  title: string;
+  owner_hint: string;
+}
+
+export interface TriageView {
+  category: InboxCategory | null;
+  urgency: InboxUrgency | null;
+  reasoning: string | null;
+  summary: string | null;
+  tasks: ExtractedTask[];
+  follow_up: string | null;
+  triaged_at: string | null;
+  /** Only meaningful because the dataset is synthetic. */
+  agreed_with_seed: boolean | null;
+  draft_status: DraftStatus;
+  draft_body: string | null;
+  approved_by: string | null;
+  approved_at: string | null;
+  rejection_note: string | null;
+  recorded_message_id: string | null;
+}
+
+export interface InboxItem {
+  email: EmailView;
+  triage: TriageView | null;
+  message_count: number;
+}
+
+export interface InboxCounts {
+  total: number;
+  unanswered: number;
+  triaged: number;
+  awaiting_approval: number;
+  by_category: Record<string, number>;
+}
+
+export interface InboxAccuracy {
+  triaged: number;
+  agreed: number;
+  percent: number | null;
+}
+
+export interface InboxListResponse {
+  items: InboxItem[];
+  counts: InboxCounts;
+  accuracy: InboxAccuracy;
+  categories: string[];
+  ai_requests_per_triage: number;
+  ai_requests_per_draft: number;
+  unanswered_after_hours: number;
+}
+
+export interface InboxThreadResponse {
+  thread_id: string;
+  emails: EmailView[];
+  message_count: number;
+  is_long: boolean;
+  triage: TriageView | null;
+}
+
+export interface InboxTriageResponse {
+  thread: InboxThreadResponse;
+  usage: TrackerUsageInfo;
+}

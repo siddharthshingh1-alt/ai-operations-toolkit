@@ -68,7 +68,7 @@ export const PROJECTS: ProjectSummary[] = [
     jdRequirement: "Build AI-assisted automations",
     description:
       "Classifies, summarizes, and drafts replies to operational email. Nothing is ever sent without explicit human approval.",
-    status: "planned",
+    status: "shipped",
     phase: 7,
   },
   {
@@ -76,7 +76,7 @@ export const PROJECTS: ProjectSummary[] = [
     name: "AI Ops Command Center",
     jdRequirement: "Collaborate cross-functionally to drive execution",
     description:
-      "Aggregates overdue tasks, paused workflows, open incidents and dashboard anomalies into one daily Ops Brief. Every item links back to its source project. Inbox items join once Project 8 ships.",
+      "Aggregates overdue tasks, paused workflows, open incidents and dashboard anomalies into one daily Ops Brief. Every item links back to its source project.",
     status: "shipped",
     phase: 8,
   },

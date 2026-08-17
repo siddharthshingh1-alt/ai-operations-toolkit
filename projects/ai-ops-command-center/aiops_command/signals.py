@@ -12,12 +12,12 @@ come, so the wording of an observation keeps a single home. Change how an
 anomaly reads over there and it changes here, because there is no second copy.
 
 **Each collector is wrapped independently.** A source that raises produces a
-`SourceStatus` marked unavailable, carrying the reason, and the other three
-still produce their signals. An aggregator that goes blank because one of four
-inputs failed is worse than useless: it hides the three that were working.
+`SourceStatus` marked unavailable, carrying the reason, and the others still
+produce their signals. An aggregator that goes blank because one of its inputs
+failed is worse than useless: it hides the ones that were working.
 
-The dependency direction is one-way. This package imports from Projects 3, 4, 5
-and 6; none of them import from it, and none of them know it exists.
+The dependency direction is one-way. This package imports from Projects 3, 4, 5,
+6 and 8; none of them import from it, and none of them know it exists.
 """
 
 from __future__ import annotations
@@ -42,6 +42,7 @@ SOURCE_LINKS: dict[str, str] = {
     "workflows": "/workflows",
     "travel_ops": "/travel-ops",
     "dashboard": "/",
+    "inbox": "/inbox",
 }
 
 SOURCE_LABELS: dict[str, str] = {
@@ -49,6 +50,7 @@ SOURCE_LABELS: dict[str, str] = {
     "workflows": "Workflow Builder",
     "travel_ops": "Travel Operations",
     "dashboard": "Operations Dashboard",
+    "inbox": "Operations Inbox",
 }
 
 
@@ -300,6 +302,90 @@ def collect_travel_ops(db: Session) -> tuple[list[Signal], str]:
     return signals, f"{len(incidents)} incident(s) read."
 
 
+def collect_inbox(db: Session) -> tuple[list[Signal], str]:
+    """Replies waiting on a person, urgent mail, and unanswered partners.
+
+    Calls the Operations Inbox's own reads. Whether a message is unanswered is
+    its calculation, not one repeated here; whether a message is urgent is the
+    judgement its model already made and already justified.
+    """
+    from aiops_inbox import service as inbox
+    from aiops_inbox.models import DraftStatus, InboxTriage
+
+    signals: list[Signal] = []
+
+    waiting = list(
+        db.scalars(
+            select(InboxTriage)
+            .where(InboxTriage.draft_status == DraftStatus.DRAFT.value)
+            .order_by(InboxTriage.updated_at.desc())
+            .limit(25)
+        )
+    )
+    for record in waiting:
+        signals.append(
+            Signal(
+                id=f"inbox:{record.email_id}:approval",
+                source="inbox",
+                severity="critical",
+                title="A drafted reply is waiting for approval",
+                detail=(
+                    (record.summary or "A reply has been drafted.")
+                    + " Nothing is recorded as sent until someone decides."
+                ),
+                link=f"/inbox?thread={record.thread_id}",
+                score=_score("critical", 8),
+            )
+        )
+
+    urgent = list(
+        db.scalars(
+            select(InboxTriage)
+            .where(
+                InboxTriage.urgency.in_(("high", "critical")),
+                InboxTriage.draft_status.in_((DraftStatus.NONE.value, DraftStatus.REJECTED.value)),
+            )
+            .limit(15)
+        )
+    )
+    for record in urgent:
+        signals.append(
+            Signal(
+                id=f"inbox:{record.email_id}:urgent",
+                source="inbox",
+                severity="critical" if record.urgency == "critical" else "warning",
+                title=f"{(record.category or 'Email')} marked {record.urgency}",
+                detail=record.reasoning or record.summary or "Triaged as needing attention.",
+                link=f"/inbox?thread={record.thread_id}",
+                score=_score("critical" if record.urgency == "critical" else "warning", 6),
+            )
+        )
+
+    # Unanswered mail is the inbox's own computation, read rather than redone.
+    _items, counts = inbox.list_inbox(db, limit=1)
+    if counts.unanswered:
+        signals.append(
+            Signal(
+                id="inbox:unanswered",
+                source="inbox",
+                severity="warning",
+                title=f"{counts.unanswered} unanswered message(s)",
+                detail=(
+                    "Partners and suppliers waiting longer than the inbox's "
+                    "threshold with no reply."
+                ),
+                link="/inbox?unanswered=1",
+                score=_score("warning", min(counts.unanswered, 20)),
+            )
+        )
+
+    return (
+        signals,
+        f"{counts.total} message(s), {counts.unanswered} unanswered, "
+        f"{counts.awaiting_approval} awaiting approval.",
+    )
+
+
 #: The bundled dataset the brief reads.
 #:
 #: The Operations Dashboard analyses an uploaded file and persists nothing, so
@@ -365,6 +451,7 @@ _COLLECTORS: list[tuple[str, str]] = [
     ("tracker", "collect_tracker"),
     ("workflows", "collect_workflows"),
     ("travel_ops", "collect_travel_ops"),
+    ("inbox", "collect_inbox"),
     ("dashboard", "collect_dashboard"),
 ]
 
@@ -387,6 +474,8 @@ def gather(db: Session, *, today: date | None = None) -> SignalSet:
                 signals, detail = collect_workflows(db)
             elif source == "travel_ops":
                 signals, detail = collect_travel_ops(db)
+            elif source == "inbox":
+                signals, detail = collect_inbox(db)
             else:
                 signals, detail = collect_dashboard()
         except Exception as exc:  # noqa: BLE001 — one source may never take the brief down

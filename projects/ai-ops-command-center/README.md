@@ -8,7 +8,8 @@ because it aggregates what the others produce.
 
 ## Problem
 
-By the time the toolkit had four working projects it had four places to look.
+By the time the toolkit had several working projects it had several places to
+look.
 Overdue tasks are in the tracker. A workflow run paused for approval is in the
 builder. An incident nobody has assessed is in travel operations. An anomaly in
 the numbers is on the dashboard.
@@ -21,7 +22,7 @@ whichever page got opened first.
 ## Which JD requirement this proves
 
 Collaborating cross-functionally to drive execution: a single operational view
-across four separate systems, where each item is traceable back to the team and
+across five separate systems, where each item is traceable back to the team and
 tool that owns it.
 
 ## Who Uses It
@@ -32,7 +33,7 @@ An operations lead at 9am, deciding where the day goes.
 
 | | |
 |---|---|
-| Manual process | ~35 min/day: open four tools, read each, decide what matters |
+| Manual process | ~40 min/day: open five tools, read each, decide what matters |
 | With this | ~5 min: one ranked list, one paragraph, links into whatever needs opening |
 | Saving | ~2.5 hours/week ≈ 130 hours/year |
 
@@ -41,15 +42,15 @@ measured result and not a claim of real-world deployment (Section 19).*
 
 ## Features
 
-- **One ranked list** of everything needing attention across four projects
+- **One ranked list** of everything needing attention across five projects
 - **Every item links back to its source** — the project that owns it, at the
   specific task, workflow or incident where possible
-- **Source health strip**: whether each of the four answered, and what it said
+- **Source health strip**: whether each source answered, and what it said
 - **Daily Ops Brief** — the one AI feature, one request, behind a button
 - **Staleness detection** — "3 sources have changed since this brief was
   written", so a stored paragraph never poses as the current situation
 - **Degrades honestly** — a failed source is named with its reason and the
-  other three still produce a brief
+  others still produce a brief
 
 ## Architecture
 
@@ -57,8 +58,8 @@ measured result and not a claim of real-world deployment (Section 19).*
 Project 5  Tracker    ─┐   list_projects / list_item_of
 Project 4  Builder    ─┤   list_workflows / issues_for / execution status
 Project 6  Travel Ops ─┼─► signals.gather()  ─►  rank()  ─►  the page
-Project 3  Dashboard  ─┘   analyse(load_sample(…))            │
-                                                              └─► AI: the brief
+Project 8  Inbox      ─┤   list_inbox / triage state         │
+Project 3  Dashboard  ─┘   analyse(load_sample(…))            └─► AI: the brief
 ```
 
 ### It aggregates; it does not recompute
@@ -75,6 +76,7 @@ collector calls the owning project's own read functions:
 | how severe an incident is | Project 6's stored assessment |
 | how many bookings it affects | Project 6's deterministic lookup |
 | what counts as an anomaly | Project 3, via the analytics service |
+| which replies await approval, and what is unanswered | Project 8's own triage state and computation |
 
 Where a source already phrases a fact, **that phrasing is reused verbatim**.
 `Trend.describe()` and `Anomaly.describe()` are printed exactly as they come
@@ -103,18 +105,18 @@ summary at all.
 
 Each collector runs inside its own guard. A source that raises is reported as
 unavailable **with the reason**, and the brief is produced from the rest. An
-aggregator that goes blank because one of four inputs failed is worse than
-useless: it hides the three that were working.
+aggregator that goes blank because one of its inputs failed is worse than
+useless: it hides the ones that were working.
 
 The reason is carried through rather than swallowed, because "unavailable"
-alone gives an operator nothing to act on. Four parametrised tests break each
-source in turn and assert the other three still report; a fifth breaks all four
+alone gives an operator nothing to act on. A parametrised test breaks each
+source in turn and asserts the others still report; another breaks all of them
 and asserts the page still renders.
 
 A brief generated while a source was down records which one, so it cannot later
 be mistaken for a complete picture — and the prompt is told, so the model says
 the picture is incomplete rather than writing a confidently whole-sounding
-paragraph over three-quarters of the data.
+paragraph over a partial picture.
 
 ### Ranking is computed, not asked for
 
@@ -184,9 +186,6 @@ the page that owns it.
   to aggregate. The page names the dataset it read. Giving Project 3 a
   persistence layer purely so Project 9 could read it would be the duplication
   Section 17 forbids.
-- **Project 8 is not built**, so there are no inbox signals yet. Section 17
-  lists them; when the Operations Inbox ships it becomes a fifth collector and
-  nothing else changes.
 - **The brief is a model's opinion** of signals it did not produce. It is shown
   next to those signals so a reader can check it.
 - **Ranking weights are crude.** They separate critical from noise; they are not
@@ -217,6 +216,5 @@ complete when it is not is the most damaging thing this page could produce.
 
 ## Future Improvements
 
-- Add the Operations Inbox (Project 8) as a fifth collector once it ships
 - A dated history of briefs, so "what did we say last Monday" is answerable
 - Per-source refresh, so a slow source does not delay the whole page

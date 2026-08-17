@@ -71,8 +71,8 @@ export default async function GuidePage() {
           How to use this demo
         </h1>
         <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-          About eighteen minutes across all seven live projects — no sign-up,
-          no API key.
+          About twenty minutes across all eight live projects — no sign-up, no
+          API key.
         </p>
       </header>
 
@@ -91,8 +91,8 @@ export default async function GuidePage() {
             justified against the role was cut rather than kept for volume.
           </p>
           <p>
-            <strong>Seven of the nine projects are built and live</strong>, and
-            you can click on all seven today:
+            <strong>Eight of the nine projects are built and live</strong>, and
+            you can click on all eight today:
           </p>
           <ul className="ml-1 space-y-1.5">
             <li>
@@ -141,6 +141,14 @@ export default async function GuidePage() {
               against the same period before it, exportable to PDF.
             </li>
             <li>
+              <Link href="/inbox" className="font-medium underline underline-offset-2">
+                AI Operations Inbox
+              </Link>{" "}
+              — triage of the operations mailbox: what each message is, how
+              urgent, what it asks for, and a drafted reply that goes nowhere
+              until a person approves it.
+            </li>
+            <li>
               <Link href="/command-center" className="font-medium underline underline-offset-2">
                 AI Ops Command Center
               </Link>{" "}
@@ -150,9 +158,9 @@ export default async function GuidePage() {
             </li>
           </ul>
           <p>
-            The remaining two are listed on the{" "}
+            The last one is listed on the{" "}
             <Link href="/projects" className="underline underline-offset-2">Projects</Link>{" "}
-            page as not yet built, because they are not yet built.
+            page as not yet built, because it is not yet built.
           </p>
           <p>
             All data here is synthetic. No real company, agent or traveller
@@ -247,8 +255,8 @@ export default async function GuidePage() {
       {/* ---- walkthrough --------------------------------------------------- */}
       <Card>
         <CardHeader
-          title="An eighteen-minute walkthrough"
-          description="In order — each step shows something the one before it does not. Steps 1–5 are the SOP Generator; 6 to 11 are the other six live projects."
+          title="A twenty-minute walkthrough"
+          description="In order — each step shows something the one before it does not. Steps 1–5 are the SOP Generator; 6 to 12 are the other seven live projects."
         />
         <ol className="divide-y divide-slate-200 dark:divide-slate-800">
           <Step n={1} title="Read an SOP first">
@@ -461,7 +469,41 @@ export default async function GuidePage() {
             </p>
           </Step>
 
-          <Step n={11} title="See it all in one place">
+          <Step n={11} title="Triage the inbox, and try to send without approving">
+            <p>
+              Open the{" "}
+              <Link href="/inbox" className="underline underline-offset-2">
+                Inbox
+              </Link>
+              . The <strong>unanswered</strong> badges are computed — no reply,
+              and older than the stated threshold. A message that arrived an
+              hour ago is not flagged, because it is new rather than neglected.
+            </p>
+            <p>
+              Open one and press <strong>Triage · 1 request</strong>. It comes
+              back with one of seven categories, an urgency, and the reasoning
+              behind both — the category is a closed set, so a model inventing
+              an eighth produces an invalid response rather than a category
+              nobody&rsquo;s filters know about.
+            </p>
+            <p>
+              Press <strong>Draft a reply · 1 request</strong>, then try to
+              approve it <em>without typing a name</em>. It refuses. That rule
+              is enforced in four places — the interface, the adapter, the
+              service, and a test that reads the source — because
+              &ldquo;never send without approval&rdquo; is the one promise this
+              project exists to keep. Approve it properly and the reply is{" "}
+              <strong>recorded, not transmitted</strong>.
+            </p>
+            <p>
+              After a few triages, note the <strong>classification accuracy</strong>{" "}
+              panel. The model never saw the dataset&rsquo;s own labels — that
+              comparison is possible only because this inbox is synthetic, and
+              the panel says so rather than implying it would work on a real one.
+            </p>
+          </Step>
+
+          <Step n={12} title="See it all in one place">
             <p>
               Open the{" "}
               <Link href="/command-center" className="underline underline-offset-2">

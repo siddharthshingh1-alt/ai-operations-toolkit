@@ -100,6 +100,7 @@ def command_client() -> Any:
     """
     import aiops_builder.models  # noqa: F401  (registers tables)
     import aiops_command.models  # noqa: F401
+    import aiops_inbox.models  # noqa: F401
     import aiops_tracker.models  # noqa: F401
     import aiops_travelops.models  # noqa: F401
     from aiops_command.router import router
@@ -133,6 +134,7 @@ def command_client() -> Any:
         "workflow_executions",
         "travel_incidents",
         "travel_communications",
+        "inbox_triage",
         "ops_briefs",
     )
     Base.metadata.create_all(engine, tables=[Base.metadata.tables[n] for n in names])
@@ -201,7 +203,13 @@ def test_a_source_appearing_or_vanishing_counts_as_change() -> None:
 
 @pytest.mark.parametrize(
     "broken",
-    ["collect_tracker", "collect_workflows", "collect_travel_ops", "collect_dashboard"],
+    [
+        "collect_tracker",
+        "collect_workflows",
+        "collect_travel_ops",
+        "collect_inbox",
+        "collect_dashboard",
+    ],
 )
 def test_one_failed_source_does_not_take_the_brief_down(
     command_client: Any, monkeypatch: pytest.MonkeyPatch, broken: str
@@ -218,13 +226,13 @@ def test_one_failed_source_does_not_take_the_brief_down(
     assert response.status_code == 200, response.text
     body = response.json()
 
-    assert len(body["sources"]) == 4
+    assert len(body["sources"]) == 5
     failed = [s for s in body["sources"] if not s["available"]]
     assert len(failed) == 1
     # The reason must be carried, not swallowed. "Unavailable" alone tells an
     # operator nothing they can act on.
     assert "is down" in failed[0]["detail"]
-    assert sum(1 for s in body["sources"] if s["available"]) == 3
+    assert sum(1 for s in body["sources"] if s["available"]) == 4
 
 
 def test_every_source_failing_still_returns_a_page(
@@ -233,7 +241,13 @@ def test_every_source_failing_still_returns_a_page(
     """The worst case is an empty brief that explains itself, not a 500."""
     import aiops_command.signals as sig
 
-    for name in ("collect_tracker", "collect_workflows", "collect_travel_ops", "collect_dashboard"):
+    for name in (
+        "collect_tracker",
+        "collect_workflows",
+        "collect_travel_ops",
+        "collect_inbox",
+        "collect_dashboard",
+    ):
         monkeypatch.setattr(sig, name, lambda *a, **k: (_ for _ in ()).throw(RuntimeError("down")))
 
     response = command_client.get("/api/command-center")
@@ -378,12 +392,25 @@ def test_signals_are_collected_from_the_real_sources(command_client: Any) -> Non
 
 
 def test_every_signal_links_back_to_its_source_project(command_client: Any) -> None:
+    """Section 17: every item points at the project that owns it.
+
+    A deep link may be a path segment (`/travel-ops/inc_1`) or a query string
+    (`/inbox?thread=TH-1`) — what matters is that it lands on the owning
+    project, not the form it takes getting there.
+    """
     from aiops_command.signals import SOURCE_LINKS
 
     body = command_client.get("/api/command-center").json()
     for signal in body["signals"]:
         base = SOURCE_LINKS[signal["source"]]
-        assert signal["link"] == base or signal["link"].startswith(base.rstrip("/") + "/"), signal
+        stem = base.rstrip("/")
+        link = signal["link"]
+        assert (
+            link == base
+            or link.startswith(f"{stem}/")
+            or link.startswith(f"{stem}?")
+            or (stem == "" and link.startswith("/"))
+        ), signal
 
 
 def test_severity_counts_match_the_signals(command_client: Any) -> None:
@@ -432,6 +459,7 @@ def test_this_project_recomputes_nothing_the_sources_own() -> None:
     assert "tracker.list_item_of" in source
     assert "builder.issues_for" in source
     assert "travelops.to_summary" in source
+    assert "inbox.list_inbox" in source
     assert "analyse(" in source
 
 
@@ -542,17 +570,18 @@ def test_the_dependency_direction_stays_one_way() -> None:
 
     import aiops_builder.service as builder
     import aiops_dashboard.analysis as dashboard
+    import aiops_inbox.service as inbox
     import aiops_tracker.service as tracker
     import aiops_travelops.service as travelops
 
-    for module in (tracker, builder, travelops, dashboard):
+    for module in (tracker, builder, travelops, inbox, dashboard):
         source = inspect.getsource(module)
         assert "aiops_command" not in source, (
             f"{module.__name__} imports the aggregator — the dependency must stay one-way"
         )
 
 
-def test_gather_reports_all_four_sources(command_client: Any) -> None:
+def test_gather_reports_every_source(command_client: Any) -> None:
     """A source silently dropped from the gather would shrink the brief."""
     session = command_client.session_factory()  # type: ignore[attr-defined]
     try:
@@ -564,6 +593,7 @@ def test_gather_reports_all_four_sources(command_client: Any) -> None:
         "tracker",
         "workflows",
         "travel_ops",
+        "inbox",
         "dashboard",
     }
     assert isinstance(result.collected_at, datetime)
