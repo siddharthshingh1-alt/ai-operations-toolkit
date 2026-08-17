@@ -19,6 +19,44 @@ npm install
 npm run demo-data
 ```
 
+## The database, and one thing to get right
+
+**The test suite needs no database.** It uses in-memory SQLite where storage
+matters and stubs the AI everywhere, so `pytest` never opens a connection to
+whatever `DATABASE_URL` names. You can verify that claim in one command:
+
+```bash
+DATABASE_URL="postgresql://nobody:x@does-not-exist.invalid:5432/nope" pytest
+```
+
+Everything passes except one assertion about default settings, because nothing
+in the suite connects.
+
+**Running the app locally is where care is needed.** If `DATABASE_URL` points at
+a deployed database and `DB_AUTO_CREATE` is on, then merely importing the app —
+a smoke test, a one-line `create_app()` check — issues `CREATE TABLE` against
+it. That happened twice while this repository was being built.
+
+`create_all()` now refuses when the host is not local, so this is prevented
+rather than remembered. But the comfortable arrangement is a database of your
+own:
+
+```bash
+# A local Postgres with pgvector, on port 5432
+docker compose up -d db
+
+# Then in .env
+DATABASE_URL=postgresql+psycopg://aiops:aiops@localhost:5432/aiops
+DB_AUTO_CREATE=true      # safe: it is your database
+```
+
+Without Docker, either install PostgreSQL 17 with the pgvector extension, or
+leave `DATABASE_URL` empty — most of the toolkit works without a database at
+all, and the endpoints that need one return a 503 saying so.
+
+If you deliberately need to create tables on a remote database, set
+`DB_ALLOW_REMOTE_SCHEMA=true` for that one command, not in `.env`.
+
 ## Before every commit
 
 ```bash

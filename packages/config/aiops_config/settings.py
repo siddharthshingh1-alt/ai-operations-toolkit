@@ -107,6 +107,14 @@ class Settings(BaseSettings):
     database_url: str | None = None
     db_auto_create: bool = False
 
+    # Permits `create_all()` to build tables on a database that is not on this
+    # machine. Off, because the two times it happened here it was an accident:
+    # a developer's DATABASE_URL pointed at the deployed database while
+    # DB_AUTO_CREATE was left on, so importing the app issued CREATE TABLE
+    # against production. Turn it on only in the environment of the one process
+    # that genuinely means to do it, and turn it off again afterwards.
+    db_allow_remote_schema: bool = False
+
     # ----- auth (Section 3) ----------------------------------------------
     auth_mode: AuthMode = AuthMode.DEMO
     demo_user_email: str = "demo@aiops.local"

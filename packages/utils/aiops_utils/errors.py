@@ -37,6 +37,22 @@ class ConfigurationError(AIOpsError):
     default_user_message = "The server is not configured correctly. Please contact the operator."
 
 
+class RemoteSchemaRefused(ConfigurationError):
+    """Table creation was attempted against a database that is not local.
+
+    A subclass of `ConfigurationError` because that is exactly what it is: the
+    process is pointed somewhere its author did not intend. It is named
+    separately so the local-development bootstrap can be caught and reported
+    specifically, rather than being mistaken for a missing setting.
+    """
+
+    code = "remote_schema_refused"
+    default_user_message = (
+        "The server is not configured correctly: it tried to create database "
+        "tables on a database that is not its own. Please contact the operator."
+    )
+
+
 class ValidationError(AIOpsError):
     """User-supplied input failed validation."""
 

@@ -58,9 +58,27 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         from sqlalchemy.exc import SQLAlchemyError
 
         from aiops_db import create_all
+        from aiops_utils import RemoteSchemaRefused
 
         try:
             create_all(settings)
+        except RemoteSchemaRefused:
+            # Not a failure — a refusal, and the right one. Someone has
+            # `DB_AUTO_CREATE` on against a database that is not theirs, which
+            # is how this project twice issued CREATE TABLE against production
+            # from a developer's laptop. Starting normally is correct: the
+            # tables over there already exist, and the application has no other
+            # reason to care.
+            logger.warning(
+                "refused to create tables on a non-local database; starting anyway",
+                extra={
+                    "consequence": (
+                        "No schema changes were made. If this is a developer "
+                        "machine, point DATABASE_URL at a local database or set "
+                        "DB_AUTO_CREATE=false."
+                    )
+                },
+            )
         except (SQLAlchemyError, OSError) as exc:
             logger.warning(
                 "could not prepare the database schema; starting without it",

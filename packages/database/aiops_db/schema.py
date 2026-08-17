@@ -14,7 +14,7 @@ from aiops_config import Settings, get_settings
 from aiops_db import models  # noqa: F401
 from aiops_db.base import Base
 from aiops_db.session import get_engine
-from aiops_utils import get_logger
+from aiops_utils import RemoteSchemaRefused, get_logger
 
 logger = get_logger(__name__)
 
@@ -74,9 +74,70 @@ def has_pgvector(settings: Settings | None = None) -> bool:
         return False
 
 
-def create_all(settings: Settings | None = None) -> None:
-    """Create every table declared on `Base`. Safe to run repeatedly."""
+#: Hostnames that count as "a database on this machine".
+#:
+#: Anything else is somebody's server, and this module's own docstring says it
+#: is for local development only.
+_LOCAL_HOSTS = frozenset({"localhost", "127.0.0.1", "::1", "0.0.0.0", "db", "postgres", ""})
+
+
+def is_local_database(settings: Settings | None = None) -> bool:
+    """Whether `DATABASE_URL` points at a database on this machine.
+
+    Used to decide whether creating tables is a safe thing to do unasked.
+    SQLite is always local — it is a file, or memory.
+    """
+    from sqlalchemy.engine import make_url
+
     settings = settings or get_settings()
+    if not settings.database_url:
+        return True
+
+    try:
+        url = make_url(settings.database_url)
+    except Exception:  # noqa: BLE001 — an unparseable URL is not provably local
+        return False
+
+    if url.drivername.startswith("sqlite"):
+        return True
+    return (url.host or "") in _LOCAL_HOSTS
+
+
+def create_all(settings: Settings | None = None) -> None:
+    """Create every table declared on `Base`. Safe to run repeatedly.
+
+    **Refuses to run against a database that is not on this machine.**
+
+    This module is for local development, and creating tables is the one thing
+    it does that changes a database it did not make. Twice during this project
+    a developer's `.env` pointed `DATABASE_URL` at the deployed Supabase while
+    `DB_AUTO_CREATE` was true, so simply importing the app in a smoke test
+    issued `CREATE TABLE` against production. Nothing broke — the tables were
+    the ones the next deploy needed anyway — but it was luck, not design, and
+    the same accident with a renamed column would not have been harmless.
+
+    Configuration alone cannot fix that: `.env` is exactly the thing that was
+    wrong, so a rule written in it protects nothing. The refusal lives here
+    instead, where the destructive call actually happens.
+
+    Deliberate remote schema creation is still possible — set
+    `DB_ALLOW_REMOTE_SCHEMA=true` — but it now has to be *chosen*, in the
+    environment of the process doing it, rather than happening because an
+    unrelated setting was left on.
+    """
+    settings = settings or get_settings()
+
+    if not is_local_database(settings) and not settings.db_allow_remote_schema:
+        # The host is deliberately not named: it is read from a URL that also
+        # contains a password, and this message is logged.
+        raise RemoteSchemaRefused(
+            "Refusing to create tables: DATABASE_URL does not point at a local "
+            "database. This is the local-development bootstrap — production "
+            "schema changes belong in a migration. If you really mean to do "
+            "this, set DB_ALLOW_REMOTE_SCHEMA=true in the environment of this "
+            "process only."
+        )
+
     _register_project_models()
     enable_pgvector(settings)
     Base.metadata.create_all(bind=get_engine(settings))

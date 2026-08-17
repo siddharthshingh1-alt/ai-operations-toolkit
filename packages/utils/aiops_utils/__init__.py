@@ -9,6 +9,7 @@ from aiops_utils.errors import (
     ConfigurationError,
     DatabaseUnavailable,
     NotFoundError,
+    RemoteSchemaRefused,
     ValidationError,
     provider_http_error,
 )
@@ -24,6 +25,7 @@ __all__ = [
     "ConfigurationError",
     "DatabaseUnavailable",
     "NotFoundError",
+    "RemoteSchemaRefused",
     "Stopwatch",
     "ValidationError",
     "configure_logging",
