@@ -59,7 +59,7 @@ export const PROJECTS: ProjectSummary[] = [
     jdRequirement: "Analyze operational data and identify improvements",
     description:
       "Daily, weekly, and monthly operational reports exported to PDF, Markdown, and HTML, reusing the dashboard's analysis.",
-    status: "planned",
+    status: "shipped",
     phase: 6,
   },
   {

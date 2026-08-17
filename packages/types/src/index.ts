@@ -775,3 +775,82 @@ export interface GenerateBriefResponse {
   brief: BriefView;
   usage: TrackerUsageInfo;
 }
+
+/* ------------------------------------------------------------------------- *
+ * Project 7 — AI Report Generator (`/api/reports`)
+ *
+ * `ReportFacts` is computed by the analytics service before any model runs;
+ * `ReportNarrative` is the only thing a model contributes. They are separate
+ * types on purpose — the split is the design, and it should be visible in the
+ * shape of the data as well as in the UI.
+ * ------------------------------------------------------------------------- */
+
+export type ReportPeriod = "daily" | "weekly" | "monthly";
+
+export interface MetricChangeView {
+  label: string;
+  unit: string;
+  current: number;
+  previous: number | null;
+  /** Null when there is nothing comparable — never conflate that with 0%. */
+  change_pct: number | null;
+  direction: "up" | "down" | "flat" | "new";
+}
+
+export interface FindingView {
+  kind: "trend" | "anomaly";
+  column: string;
+  /** `Trend.describe()` / `Anomaly.describe()`, verbatim. */
+  statement: string;
+}
+
+export interface WindowView {
+  start: string | null;
+  end: string | null;
+  row_count: number;
+  description: string;
+}
+
+export interface ReportFacts {
+  dataset: string;
+  dataset_label: string;
+  period: ReportPeriod;
+  period_label: string;
+  current: WindowView;
+  previous: WindowView;
+  whole_dataset: boolean;
+  kpis: MetricChangeView[];
+  findings: FindingView[];
+  row_count: number;
+  column_count: number;
+  generated_at: string;
+}
+
+export interface ReportActionItem {
+  action: string;
+  owner_hint: string;
+  metric: string | null;
+}
+
+export interface ReportNarrative {
+  executive_summary: string;
+  recommendations: string[];
+  action_items: ReportActionItem[];
+}
+
+export interface ReportFactsResponse {
+  facts: ReportFacts;
+  analysis: Analysis;
+  ai_requests_per_narrative: number;
+}
+
+export interface ReportNarrativeResponse {
+  narrative: ReportNarrative;
+  usage: TrackerUsageInfo;
+}
+
+export interface ReportSampleOption {
+  key: string;
+  name: string;
+  description: string;
+}

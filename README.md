@@ -11,13 +11,13 @@ This is not a general AI showcase. Every project maps to a stated requirement of
 the role it targets, and anything that could not be justified against that was
 cut or merged rather than kept for volume. The reasoning is on the record below.
 
-> **Current state: Projects 1, 3, 4, 5, 6 and 9 shipped and deployed** —
+> **Current state: Projects 1, 3, 4, 5, 6, 7 and 9 shipped and deployed** —
 > including the flagship and the aggregator. The foundation, the AI SOP
 > Generator, the AI Operations Dashboard, the AI Workflow Builder, the AI
-> Project Tracker, AI Travel Operations and the AI Ops Command Center are
-> built, tested, and running on a public URL. The other three projects are not
-> implemented yet — the UI says so, and this README will not claim otherwise
-> until they are.
+> Project Tracker, AI Travel Operations, the AI Report Generator and the AI Ops
+> Command Center are built, tested, and running on a public URL. The other two
+> projects are not implemented yet — the UI says so, and this README will not
+> claim otherwise until they are.
 
 ## ▶ Live demo
 
@@ -40,7 +40,7 @@ questions and a real model answers (see [The two modes](#the-two-modes) below).
 | 3 | **AI Travel Operations** (flagship) | Identify operational bottlenecks and solve them using AI | Incident classification, affected-booking lookup, drafted agent comms with enforced human approval | ~390 hrs/yr* | [live](https://ai-operations-toolkit-web.vercel.app/travel-ops) · [code](projects/ai-travel-operations/) |
 | 4 | **AI Workflow Builder** | Build AI-assisted workflows and automations | AI nodes inside a visual editor, with an enforced approval guard on risky steps | Removes the engineering handoff* | [live](https://ai-operations-toolkit-web.vercel.app/workflows) · [code](projects/ai-workflow-builder/) |
 | 5 | **AI Project Tracker** | Own projects from planning to implementation; build trackers | GREEN/YELLOW/RED health with reasoning enforced by schema, over computed overdue/blocked facts | ~140 hrs/yr* | [live](https://ai-operations-toolkit-web.vercel.app/tasks) · [code](projects/ai-project-tracker/) |
-| 6 | AI Report Generator | Analyze operational data and identify improvements | Executive summary over existing analysis | TBM | planned |
+| 6 | **AI Report Generator** | Analyze operational data and identify improvements | Period-over-period reports over the Dashboard's own analysis; AI writes only the narrative | ~135 hrs/yr* | [live](https://ai-operations-toolkit-web.vercel.app/reports) · [code](projects/ai-report-generator/) |
 | 7 | AI Operations Inbox | Build AI-assisted automations | Classification, thread summarisation, drafted replies | TBM | planned |
 | 8 | **AI Ops Command Center** | Collaborate cross-functionally to drive execution | Daily Ops Brief over signals four other projects produce, each item linking back to its source | ~130 hrs/yr* | [live](https://ai-operations-toolkit-web.vercel.app/command-center) · [code](projects/ai-ops-command-center/) |
 | 9 | AI Meeting Assistant (stretch) | Collaborate cross-functionally | Whisper transcription + decision extraction | TBM | planned |

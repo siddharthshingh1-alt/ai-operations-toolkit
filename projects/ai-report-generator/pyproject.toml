@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aiops-report"
+version = "0.1.0"
+description = "Project 7 — AI Report Generator: periodic reports over the analysis Project 3 already computes (CLAUDE.md Section 15)."
+requires-python = ">=3.12"
+# Depends on the dashboard for `analyse()` and the bundled samples, and on the
+# document-processing service for reading uploads and rendering exports.
+# Section 15: reporting sits on top of the existing analysis, it does not
+# rebuild it.
+dependencies = [
+    "aiops-config",
+    "aiops-utils",
+    "aiops-ai",
+    "aiops-analytics",
+    "aiops-dashboard",
+    "aiops-docproc",
+    "pandas>=2.2",
+    "pydantic>=2.8",
+    "fastapi>=0.115",
+]
+
+[tool.setuptools]
+packages = ["aiops_report"]

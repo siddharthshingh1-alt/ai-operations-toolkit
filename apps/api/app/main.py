@@ -17,6 +17,7 @@ from contextlib import asynccontextmanager
 from aiops_builder.router import router as builder_router
 from aiops_command.router import router as command_router
 from aiops_dashboard.router import router as dashboard_router
+from aiops_report.router import router as report_router
 from aiops_sop.router import router as sop_router
 from aiops_tracker.router import router as tracker_router
 from aiops_travelops.router import router as travel_router
@@ -129,6 +130,7 @@ def create_app() -> FastAPI:
     app.include_router(travel_router)  # Project 6 — AI Travel Operations (flagship)
     app.include_router(builder_router)  # Project 4 — AI Workflow Builder
     app.include_router(tracker_router)  # Project 5 — AI Project Tracker
+    app.include_router(report_router)  # Project 7 — AI Report Generator
     # Project 9 — AI Ops Command Center. Mounted last because it aggregates
     # the four above; it reads their data and adds none of its own.
     app.include_router(command_router)

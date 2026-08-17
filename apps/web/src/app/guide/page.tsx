@@ -71,8 +71,8 @@ export default async function GuidePage() {
           How to use this demo
         </h1>
         <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-          About fifteen minutes across all six live projects — no sign-up, no
-          API key.
+          About eighteen minutes across all seven live projects — no sign-up,
+          no API key.
         </p>
       </header>
 
@@ -91,8 +91,8 @@ export default async function GuidePage() {
             justified against the role was cut rather than kept for volume.
           </p>
           <p>
-            <strong>Six of the nine projects are built and live</strong>, and
-            you can click on all six today:
+            <strong>Seven of the nine projects are built and live</strong>, and
+            you can click on all seven today:
           </p>
           <ul className="ml-1 space-y-1.5">
             <li>
@@ -134,6 +134,13 @@ export default async function GuidePage() {
               or RED it assigns.
             </li>
             <li>
+              <Link href="/reports" className="font-medium underline underline-offset-2">
+                AI Report Generator
+              </Link>{" "}
+              — daily, weekly and monthly reports with every KPI measured
+              against the same period before it, exportable to PDF.
+            </li>
+            <li>
               <Link href="/command-center" className="font-medium underline underline-offset-2">
                 AI Ops Command Center
               </Link>{" "}
@@ -143,7 +150,7 @@ export default async function GuidePage() {
             </li>
           </ul>
           <p>
-            The remaining three are listed on the{" "}
+            The remaining two are listed on the{" "}
             <Link href="/projects" className="underline underline-offset-2">Projects</Link>{" "}
             page as not yet built, because they are not yet built.
           </p>
@@ -240,8 +247,8 @@ export default async function GuidePage() {
       {/* ---- walkthrough --------------------------------------------------- */}
       <Card>
         <CardHeader
-          title="A fifteen-minute walkthrough"
-          description="In order — each step shows something the one before it does not. Steps 1–5 are the SOP Generator; 6 to 10 are the other five live projects."
+          title="An eighteen-minute walkthrough"
+          description="In order — each step shows something the one before it does not. Steps 1–5 are the SOP Generator; 6 to 11 are the other six live projects."
         />
         <ol className="divide-y divide-slate-200 dark:divide-slate-800">
           <Step n={1} title="Read an SOP first">
@@ -423,7 +430,38 @@ export default async function GuidePage() {
             </p>
           </Step>
 
-          <Step n={10} title="See it all in one place">
+          <Step n={10} title="Produce a report someone could circulate">
+            <p>
+              Open{" "}
+              <Link href="/reports" className="underline underline-offset-2">
+                Reports
+              </Link>
+              . A weekly report is already computed — and computing it cost
+              nothing, because the KPIs, trends and anomalies come from the same
+              analysis the Dashboard ran in step 6.
+            </p>
+            <p>
+              Look at the <strong>Change</strong> column. That is the reason to
+              read a report rather than a dashboard: every metric is measured
+              against the same-length period immediately before it. Switch{" "}
+              <strong>Period</strong> to Daily and then Monthly and watch the
+              window and the comparisons move — still free, still no AI.
+            </p>
+            <p>
+              Now press <strong>Write it · 1 request</strong>. The executive
+              summary, recommendations and action items appear <em>below</em>{" "}
+              the table, so you can check every claim against the figures above
+              it. Then click <strong>PDF</strong> — a real formatted document
+              downloads, and the download spends no AI request.
+            </p>
+            <p>
+              Change the period after generating: the narrative disappears.
+              Prose written about last week&rsquo;s numbers sitting above this
+              week&rsquo;s table is exactly the failure worth preventing.
+            </p>
+          </Step>
+
+          <Step n={11} title="See it all in one place">
             <p>
               Open the{" "}
               <Link href="/command-center" className="underline underline-offset-2">

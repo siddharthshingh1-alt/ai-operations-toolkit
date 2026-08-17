@@ -22,6 +22,7 @@ dependencies = [
     "aiops-travelops",
     "aiops-tracker",
     "aiops-command",
+    "aiops-report",
     "aiops-builder",
 
     # The web framework itself. These belong here rather than floating at the
