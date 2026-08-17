@@ -76,8 +76,8 @@ export const PROJECTS: ProjectSummary[] = [
     name: "AI Ops Command Center",
     jdRequirement: "Collaborate cross-functionally to drive execution",
     description:
-      "Aggregates KPIs, workflows, tasks, alerts, and inbox items into one daily Ops Brief. Every item links back to its source project.",
-    status: "planned",
+      "Aggregates overdue tasks, paused workflows, open incidents and dashboard anomalies into one daily Ops Brief. Every item links back to its source project. Inbox items join once Project 8 ships.",
+    status: "shipped",
     phase: 8,
   },
   {

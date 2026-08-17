@@ -25,6 +25,7 @@
 -e ./projects/ai-operations-dashboard
 -e ./projects/ai-travel-operations
 -e ./projects/ai-project-tracker
+-e ./projects/ai-ops-command-center
 -e ./projects/ai-workflow-builder
 
 # The API app, which declares FastAPI and uvicorn. Installing it (rather than

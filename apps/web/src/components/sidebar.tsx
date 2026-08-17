@@ -14,6 +14,7 @@ import { cn } from "@aiops/ui";
 const NAV = [
   { href: "/guide", label: "Start here" },
   { href: "/", label: "Dashboard" },
+  { href: "/command-center", label: "Command Center" },
   { href: "/projects", label: "Projects" },
   { href: "/workflows", label: "Workflows" },
   { href: "/documents", label: "Documents" },

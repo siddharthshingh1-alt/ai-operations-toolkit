@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aiops-command"
+version = "0.1.0"
+description = "Project 9 — AI Ops Command Center: aggregates the signals Projects 3, 4, 5 and 6 already produce (CLAUDE.md Section 17)."
+requires-python = ">=3.12"
+# Depends on the four source projects. This is the one place in the repository
+# where a project depends on other projects, and it is inherent to being an
+# aggregator (Section 17). The direction is one-way: none of the four know this
+# exists.
+dependencies = [
+    "aiops-config",
+    "aiops-utils",
+    "aiops-ai",
+    "aiops-db",
+    "aiops-dashboard",
+    "aiops-builder",
+    "aiops-tracker",
+    "aiops-travelops",
+    "pydantic>=2.8",
+    "sqlalchemy>=2.0",
+    "fastapi>=0.115",
+]
+
+[tool.setuptools]
+packages = ["aiops_command"]

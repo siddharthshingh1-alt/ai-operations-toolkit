@@ -712,3 +712,66 @@ export interface WeeklyReportResponse {
   project_facts: TrackedProjectListItem[];
   usage: TrackerUsageInfo;
 }
+
+/* ------------------------------------------------------------------------- *
+ * Project 9 — AI Ops Command Center (`/api/command-center`)
+ *
+ * An aggregator. Every signal here was produced by another project and is
+ * re-read on each request; this project stores only the narrative it writes.
+ * `link` is what makes it an aggregator rather than a second dashboard — every
+ * item points back at whichever project owns it (Section 17).
+ * ------------------------------------------------------------------------- */
+
+export type SignalSeverity = "critical" | "warning" | "info";
+export type SignalSource = "tracker" | "workflows" | "travel_ops" | "dashboard";
+
+export interface SignalView {
+  id: string;
+  source: SignalSource;
+  source_label: string;
+  severity: SignalSeverity;
+  title: string;
+  detail: string;
+  link: string;
+}
+
+export interface SourceView {
+  source: SignalSource;
+  label: string;
+  available: boolean;
+  detail: string;
+  signal_count: number;
+  link: string;
+}
+
+export interface BriefAction {
+  action: string;
+  signal_id: string | null;
+}
+
+export interface BriefView {
+  id: string;
+  summary: string;
+  actions: BriefAction[];
+  generated_at: string;
+  /** How many per-source counts moved since generation. 0 means current. */
+  changed_since: number;
+  unavailable_sources: string[];
+}
+
+export interface CommandCenterResponse {
+  collected_at: string;
+  signals: SignalView[];
+  sources: SourceView[];
+  brief: BriefView | null;
+  critical_count: number;
+  warning_count: number;
+  info_count: number;
+  ai_requests_per_brief: number;
+  dashboard_dataset: string;
+}
+
+export interface GenerateBriefResponse {
+  brief: BriefView;
+  usage: TrackerUsageInfo;
+}

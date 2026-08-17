@@ -71,7 +71,7 @@ export default async function GuidePage() {
           How to use this demo
         </h1>
         <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-          About twelve minutes across all five live projects — no sign-up, no
+          About fifteen minutes across all six live projects — no sign-up, no
           API key.
         </p>
       </header>
@@ -91,8 +91,8 @@ export default async function GuidePage() {
             justified against the role was cut rather than kept for volume.
           </p>
           <p>
-            <strong>Five of the nine projects are built and live</strong>, and
-            you can click on all five today:
+            <strong>Six of the nine projects are built and live</strong>, and
+            you can click on all six today:
           </p>
           <ul className="ml-1 space-y-1.5">
             <li>
@@ -133,9 +133,17 @@ export default async function GuidePage() {
               blocked are computed and the AI has to justify the GREEN, YELLOW
               or RED it assigns.
             </li>
+            <li>
+              <Link href="/command-center" className="font-medium underline underline-offset-2">
+                AI Ops Command Center
+              </Link>{" "}
+              — the aggregator. Everything needing attention across the other
+              projects on one page, each item linking back to whichever one
+              owns it.
+            </li>
           </ul>
           <p>
-            The remaining four are listed on the{" "}
+            The remaining three are listed on the{" "}
             <Link href="/projects" className="underline underline-offset-2">Projects</Link>{" "}
             page as not yet built, because they are not yet built.
           </p>
@@ -232,8 +240,8 @@ export default async function GuidePage() {
       {/* ---- walkthrough --------------------------------------------------- */}
       <Card>
         <CardHeader
-          title="A twelve-minute walkthrough"
-          description="In order — each step shows something the one before it does not. Steps 1–5 are the SOP Generator; 6 to 9 are the other four live projects."
+          title="A fifteen-minute walkthrough"
+          description="In order — each step shows something the one before it does not. Steps 1–5 are the SOP Generator; 6 to 10 are the other five live projects."
         />
         <ol className="divide-y divide-slate-200 dark:divide-slate-800">
           <Step n={1} title="Read an SOP first">
@@ -412,6 +420,33 @@ export default async function GuidePage() {
               and download it as a PDF. The download costs no AI request: it
               renders the report already on the screen rather than writing a
               second, differently-worded one.
+            </p>
+          </Step>
+
+          <Step n={10} title="See it all in one place">
+            <p>
+              Open the{" "}
+              <Link href="/command-center" className="underline underline-offset-2">
+                Command Center
+              </Link>
+              . Everything on it came from the five pages you just used —
+              overdue tasks from the tracker, runs paused for approval from the
+              builder, unassessed incidents from travel ops, anomalies from the
+              dashboard — ranked together, most urgent first.
+            </p>
+            <p>
+              <strong>Click any item&rsquo;s link.</strong> It takes you to the
+              project that owns it. That is the whole design: this page measures
+              nothing itself, and stores nothing about your tasks or incidents.
+              It re-reads the other four every time you load it, which is why
+              fixing something over there makes it disappear from here.
+            </p>
+            <p>
+              Press <strong>Generate</strong> for the morning brief — the one AI
+              request on the page. Loading the page costs nothing at all, which
+              is what makes it safe to open first every day. If a source is ever
+              unreachable it is named at the top with the reason, and the brief
+              is still written from the rest rather than the page going blank.
             </p>
           </Step>
         </ol>

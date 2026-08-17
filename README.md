@@ -11,12 +11,13 @@ This is not a general AI showcase. Every project maps to a stated requirement of
 the role it targets, and anything that could not be justified against that was
 cut or merged rather than kept for volume. The reasoning is on the record below.
 
-> **Current state: Projects 1, 3, 4, 5 and 6 shipped and deployed** — including
-> the flagship. The foundation, the AI SOP Generator, the AI Operations
-> Dashboard, the AI Workflow Builder, the AI Project Tracker and AI Travel
-> Operations are built, tested, and running on a public URL. The other four
-> projects are not implemented yet — the UI says so, and this README will not
-> claim otherwise until they are.
+> **Current state: Projects 1, 3, 4, 5, 6 and 9 shipped and deployed** —
+> including the flagship and the aggregator. The foundation, the AI SOP
+> Generator, the AI Operations Dashboard, the AI Workflow Builder, the AI
+> Project Tracker, AI Travel Operations and the AI Ops Command Center are
+> built, tested, and running on a public URL. The other three projects are not
+> implemented yet — the UI says so, and this README will not claim otherwise
+> until they are.
 
 ## ▶ Live demo
 
@@ -41,7 +42,7 @@ questions and a real model answers (see [The two modes](#the-two-modes) below).
 | 5 | **AI Project Tracker** | Own projects from planning to implementation; build trackers | GREEN/YELLOW/RED health with reasoning enforced by schema, over computed overdue/blocked facts | ~140 hrs/yr* | [live](https://ai-operations-toolkit-web.vercel.app/tasks) · [code](projects/ai-project-tracker/) |
 | 6 | AI Report Generator | Analyze operational data and identify improvements | Executive summary over existing analysis | TBM | planned |
 | 7 | AI Operations Inbox | Build AI-assisted automations | Classification, thread summarisation, drafted replies | TBM | planned |
-| 8 | AI Ops Command Center | Collaborate cross-functionally to drive execution | Daily Ops Brief aggregated from the others | TBM | planned |
+| 8 | **AI Ops Command Center** | Collaborate cross-functionally to drive execution | Daily Ops Brief over signals four other projects produce, each item linking back to its source | ~130 hrs/yr* | [live](https://ai-operations-toolkit-web.vercel.app/command-center) · [code](projects/ai-ops-command-center/) |
 | 9 | AI Meeting Assistant (stretch) | Collaborate cross-functionally | Whisper transcription + decision extraction | TBM | planned |
 
 *\* Simulated demo estimate against synthetic data — not a measured result and
