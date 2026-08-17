@@ -155,7 +155,9 @@ Then open **http://localhost:3000/reports**.
 
 A weekly report on the bundled operations metrics:
 
-Covering 2026-08-07 to 2026-08-13, compared with 2026-07-31 to 2026-08-06:
+Covering the last seven days in the dataset against the seven before them.
+The dates move — the synthetic data is regenerated relative to the day it is
+built — but the figures are stable, because the generator is seeded:
 
 | Metric | This period | Previous | Change |
 |---|---|---|---|
