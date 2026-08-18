@@ -56,7 +56,7 @@ export default async function DashboardPage() {
             <Link href="/guide" className="underline underline-offset-2">
               Start here
             </Link>{" "}
-            — a ten-minute walkthrough of all four live projects.
+            — a twenty-minute walkthrough of all eight live projects.
           </p>
         </div>
       ) : null}

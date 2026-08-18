@@ -167,10 +167,10 @@ locally with your own key in `.env` is (`DEMO_MODE=false`).*
   /analytics               Deterministic profiling, trend and anomaly detection
   /document-processing     Markdown / HTML / PDF export and spreadsheet reading, built once
 
-/projects                  Nine project directories; SOP Generator, Operations Dashboard, Workflow Builder and Travel Operations built
+/projects                  Nine project directories; the eight in the table above are built and deployed, Meeting Assistant is not
 /docs                      architecture · business-cases · decisions
 /scripts                   Demo data generator · demo output recorder
-/tests                     213 tests
+/tests                     394 passing, 1 skipped
 /.github/workflows         CI: lint · typecheck · test · build · secret scan
 ```
 
@@ -183,7 +183,7 @@ Detail: [`docs/architecture/`](docs/architecture/README.md).
 | Frontend | Next.js 16, TypeScript, Tailwind v4 | Server components keep every API key server-side by construction |
 | Backend | FastAPI, Pydantic v2 | Typed request/response models the frontend types mirror |
 | Database | PostgreSQL 17 + pgvector | Semantic search without a second vector database |
-| AI | Anthropic (default), OpenAI, Gemini | Swappable behind one interface; embeddings and Whisper route to OpenAI, since Anthropic offers neither |
+| AI | Gemini on the live demo; Anthropic and OpenAI supported | Swappable behind one interface. Embeddings and transcription route to OpenAI independently of whichever provider answers the prompts |
 | Workflow | Custom engine | Human approval enforced structurally, not by convention |
 | Quality | ruff, mypy, pytest, ESLint, tsc | All green, all in CI |
 
