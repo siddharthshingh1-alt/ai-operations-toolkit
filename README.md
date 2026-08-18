@@ -1,31 +1,27 @@
 # AI Operations Toolkit
 
-**An AI Operations Engineering portfolio, built for one specific role.**
+A working portfolio of AI-assisted **workflows, SOPs, dashboards, trackers and
+automations** for B2B travel operations — the business where travel agencies book
+flights, hotels and holidays and an operations team keeps the on-ground delivery
+working. Eight projects are built, tested and running live on a public URL, with a
+real model doing the work rather than replaying recordings. Nothing the AI drafts
+reaches the outside world until a named person approves it.
 
-A working platform of AI-assisted **workflows, SOPs, dashboards, trackers, and
-automations** for a B2B travel-tech company — the kind where travel agents book
-flights, hotels, and holidays, and an operations team keeps the on-ground
-delivery working.
+### **[▶ Open the live site](https://ai-operations-toolkit-web.vercel.app)** · **[Start here — the guided walkthrough](https://ai-operations-toolkit-web.vercel.app/guide)**
+
+No sign-up, no API key needed from you. The API sleeps after 15 minutes idle on its
+free tier, so the first load can take up to a minute — it is fast afterwards. Which
+mode is running is always stated in the UI; see [The two modes](#the-two-modes).
 
 This is not a general AI showcase. Every project maps to a stated requirement of
-the role it targets, and anything that could not be justified against that was
-cut or merged rather than kept for volume. The reasoning is on the record below.
+the role it targets, and anything that could not be justified against that was cut
+or merged rather than kept for volume. The reasoning is on the record below.
 
-> **Current state: eight of the nine projects shipped and deployed** —
-> including the flagship and the aggregator. Only the AI Meeting Assistant, a
-> stretch goal from the start, is not implemented. Everything else is built,
-> tested, and running on a public URL — the UI says which is which, and this
-> README will not claim otherwise until it changes.
-
-## ▶ Live demo
-
-**https://ai-operations-toolkit-web.vercel.app**
-
-No sign-up, no API key needed from you. **The AI runs live** — ask it your own
-questions and a real model answers (see [The two modes](#the-two-modes) below).
-
-> The API is on a free tier that sleeps after 15 minutes idle, so **the first
-> load can take up to a minute** while it wakes. It is fast afterwards.
+> **Current state: eight of the nine projects shipped and deployed** — including
+> the flagship and the aggregator. Only the AI Meeting Assistant, a stretch goal
+> from the start, is not implemented. Everything else is built, tested, and
+> running on a public URL — the UI says which is which, and this README will not
+> claim otherwise until it changes.
 
 ---
 
@@ -47,6 +43,36 @@ questions and a real model answers (see [The two modes](#the-two-modes) below).
 not a claim of real-world deployment. TBM = to be measured, on the same basis.*
 
 Build order and reasoning: [`CLAUDE.md`](CLAUDE.md) Section 8.
+
+---
+
+## Screenshots
+
+Captured from the deployed site linked above — not mockups, not a local build.
+
+### The approval gate — the model drafts, a person decides
+
+[![Travel Operations holding two drafted agency messages at "draft — not sent"](docs/screenshots/travel-ops-approval.png)](https://ai-operations-toolkit-web.vercel.app/travel-ops)
+
+*Affected bookings are matched in code with no model involved; the severity judgement carries its reasoning; every drafted message stops at **draft — not sent** behind a named approver.*
+
+### The guard refusing a workflow that could send unattended
+
+[![Workflow Builder marking an unguarded Email step as 1 blocking](docs/screenshots/workflow-guard.png)](https://ai-operations-toolkit-web.vercel.app/workflows)
+
+*An Email step reachable without a Human approval step ahead of it is marked **1 blocking**, by the same rule the workflow engine enforces when a run starts.*
+
+### Operations Dashboard — computed first, explained only when asked
+
+[![Operations dashboard KPI cards and trend charts with anomalies flagged](docs/screenshots/dashboard.png)](https://ai-operations-toolkit-web.vercel.app/)
+
+*KPIs, trends and anomalies are computed in code and flagged by a z-score test, not by a model — interpretation is a separate, explicit button.*
+
+### Ops Command Center — everything needing attention, nothing of its own
+
+[![Ops Command Center daily brief over signals from four other projects](docs/screenshots/command-center.png)](https://ai-operations-toolkit-web.vercel.app/command-center)
+
+*A Daily Ops Brief written over signals four other projects produced, each row ranked in code and linking back to the project that raised it.*
 
 ---
 
