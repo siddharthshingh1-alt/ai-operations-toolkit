@@ -221,5 +221,5 @@ SOPs. Fine for a portfolio; the seeded SOPs can be restored by re-running
 | `/health/ready` says database `unavailable` | Direct connection string instead of the pooler | Swap to the session pooler URI (step 1.2) |
 | `pdf_export` says `not_configured` | Image built without the Pango libraries | Confirm Render used `apps/api/Dockerfile`, not a native Python runtime |
 | Vercel build fails | Root Directory not set to `apps/web` | Settings → General → Root Directory |
-| Site loads but shows "API unreachable" | `NEXT_PUBLIC_API_URL` wrong or missing, or set for Preview/Development but not **Production** | Vercel → Settings → Environment Variables, then **redeploy** — this value is baked in at build time |
+| Site keeps saying "The demo backend is waking up" after a refresh or two | `NEXT_PUBLIC_API_URL` wrong or missing, or set for Preview/Development but not **Production**. A genuine cold start clears within about a minute; this does not | Vercel → Settings → Environment Variables, then **redeploy** — this value is baked in at build time |
 | Every API call 404s | A trailing slash on `NEXT_PUBLIC_API_URL` — the client joins paths directly, so `.../` becomes `//api/system`, which is a different path | Remove the trailing slash and redeploy |

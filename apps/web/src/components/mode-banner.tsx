@@ -10,6 +10,20 @@ import { Badge } from "@aiops/ui";
  */
 export function ModeBanner({ system }: { system: SystemInfo | null }) {
   if (!system) {
+    // On the deployed URL this is almost always a cold start rather than a
+    // fault: the API sleeps after 15 minutes idle and takes about 30 seconds to
+    // wake. Telling a visitor to run `npm run dev:api` asks them to start a
+    // backend they do not have, on the first screen they ever see, so the
+    // developer instruction stays in development where it is the right answer.
+    if (process.env.NODE_ENV === "production") {
+      return (
+        <Badge tone="warning">
+          The demo backend is waking up (free tier) — this takes about 30
+          seconds, please refresh in a moment
+        </Badge>
+      );
+    }
+
     return (
       <Badge tone="danger">
         API unreachable — start the backend with <code>npm run dev:api</code>
@@ -28,6 +42,10 @@ export function ModeBanner({ system }: { system: SystemInfo | null }) {
   // Demo Mode with no recordings is a real, reportable state, not a warning to
   // paper over: nothing can run until someone records real outputs once.
   if (system.demo_recordings === 0) {
+    if (process.env.NODE_ENV === "production") {
+      return <Badge tone="warning">Demo Mode — no recorded outputs available</Badge>;
+    }
+
     return (
       <Badge tone="warning">
         Demo Mode — no recordings yet, run <code>npm run record-demo</code>
