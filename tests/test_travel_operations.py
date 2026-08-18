@@ -339,6 +339,62 @@ def test_affected_bookings_are_found_by_route(wired: list[Booking]) -> None:
     assert {booking.id for booking in found} == {"BK-1", "BK-2", "BK-3"}
 
 
+def test_a_regenerated_dataset_does_not_empty_a_lookup_already_recorded(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The demo dataset moves under the incidents; the lookup must survive it.
+
+    Booking dates are regenerated on every deploy while incidents are seeded
+    once, so the date match stops finding what an incident already names. The
+    recorded ids still resolve, and they are the honest answer — the console
+    reporting nothing affected beside a draft naming a booking is not.
+    """
+    recorded = _booking("BK-1")
+
+    class _Moved:
+        """Dates no longer line up; ids still do."""
+
+        def list_bookings(self, *, status: Any = None, limit: int = 200) -> list[Booking]:
+            return [recorded]
+
+        def get_booking(self, booking_id: str) -> Booking | None:
+            return recorded if booking_id == recorded.id else None
+
+        def find_affected_bookings(self, *, route: str, on_date: Any) -> list[Booking]:
+            return []
+
+    monkeypatch.setattr("aiops_travelops.service.get_booking_provider", lambda: _Moved())
+
+    incident = _incident(affected_booking_ids=["BK-1"], affected_count=1)
+    assert [booking.id for booking in find_affected(incident)] == ["BK-1"]
+
+    # An incident that never named anything still finds nothing: the fallback
+    # recovers a recorded lookup, it does not invent one.
+    assert find_affected(_incident(affected_booking_ids=[])) == []
+
+
+def test_a_recorded_booking_that_was_cancelled_is_not_recovered(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The fallback must not resurrect bookings that are no longer live."""
+    cancelled = _booking("BK-1")
+    cancelled.status = BookingStatus.CANCELLED
+
+    class _Cancelled:
+        def list_bookings(self, *, status: Any = None, limit: int = 200) -> list[Booking]:
+            return [cancelled]
+
+        def get_booking(self, booking_id: str) -> Booking | None:
+            return cancelled if booking_id == cancelled.id else None
+
+        def find_affected_bookings(self, *, route: str, on_date: Any) -> list[Booking]:
+            return []
+
+    monkeypatch.setattr("aiops_travelops.service.get_booking_provider", lambda: _Cancelled())
+
+    assert find_affected(_incident(affected_booking_ids=["BK-1"], affected_count=1)) == []
+
+
 def test_an_incident_affecting_nothing_is_refused_before_spending_a_request(
     wired: list[Booking],
 ) -> None:

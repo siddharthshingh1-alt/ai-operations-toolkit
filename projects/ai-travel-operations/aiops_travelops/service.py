@@ -62,6 +62,25 @@ MAX_LISTED_BOOKINGS = 50
 # --------------------------------------------------------------- affected lookup
 
 
+def _recorded_bookings(incident: TravelIncident) -> list[Booking]:
+    """The bookings this incident already names, resolved by id.
+
+    Booking ids survive a regeneration of the demo dataset; departure dates do
+    not. `scripts/generate_demo_data.py` anchors every date to the moment it
+    runs, and the API image regenerates on each deploy, while incidents live in
+    the database and are seeded only once. An incident therefore outlives the
+    exact departure dates it was originally matched on.
+    """
+    provider = get_booking_provider()
+    resolved = (provider.get_booking(booking_id) for booking_id in incident.affected_booking_ids)
+    return [
+        booking
+        for booking in resolved
+        if booking is not None
+        and booking.status not in (BookingStatus.CANCELLED, BookingStatus.REFUNDED)
+    ]
+
+
 def find_affected(incident: TravelIncident) -> list[Booking]:
     """Bookings caught by this incident. Deterministic, no model involved.
 
@@ -72,28 +91,40 @@ def find_affected(incident: TravelIncident) -> list[Booking]:
     provider = get_booking_provider()
 
     if incident.route and incident.occurred_at:
-        return provider.find_affected_bookings(route=incident.route, on_date=incident.occurred_at)
-
-    # No route, or no date: match what we do have rather than returning nothing.
-    candidates = provider.list_bookings(limit=1000)
-    live = [
-        booking
-        for booking in candidates
-        if booking.status not in (BookingStatus.CANCELLED, BookingStatus.REFUNDED)
-    ]
-
-    if incident.supplier:
-        live = [booking for booking in live if booking.supplier == incident.supplier]
-    if incident.route:
-        live = [booking for booking in live if booking.route == incident.route]
-    if incident.occurred_at:
-        target = incident.occurred_at.date()
-        live = [
+        matched = provider.find_affected_bookings(
+            route=incident.route, on_date=incident.occurred_at
+        )
+    else:
+        # No route, or no date: match what we do have rather than returning nothing.
+        candidates = provider.list_bookings(limit=1000)
+        matched = [
             booking
-            for booking in live
-            if booking.departure_at is not None and booking.departure_at.date() == target
+            for booking in candidates
+            if booking.status not in (BookingStatus.CANCELLED, BookingStatus.REFUNDED)
         ]
-    return live
+
+        if incident.supplier:
+            matched = [booking for booking in matched if booking.supplier == incident.supplier]
+        if incident.route:
+            matched = [booking for booking in matched if booking.route == incident.route]
+        if incident.occurred_at:
+            target = incident.occurred_at.date()
+            matched = [
+                booking
+                for booking in matched
+                if booking.departure_at is not None and booking.departure_at.date() == target
+            ]
+
+    if matched or not incident.affected_booking_ids:
+        return matched
+
+    # The date match found nothing for an incident that already names bookings.
+    # Those ids came from an earlier lookup and still resolve, so the dataset
+    # moved under the incident rather than the incident becoming harmless.
+    # Returning nothing here is what let a redeploy empty a real lookup and
+    # leave the console reporting no affected bookings directly above drafts
+    # that name one by reference.
+    return _recorded_bookings(incident)
 
 
 def _apply_lookup(incident: TravelIncident, bookings: list[Booking]) -> None:
